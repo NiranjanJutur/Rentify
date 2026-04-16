@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#444651",
+                        "primary": "#00236f",
+                        "outline-variant": "#c5c5d3",
+                        "inverse-surface": "#2e3132",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#f8f9fb",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed": "#341100",
+                        "surface-variant": "#e1e2e4",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d9dadc",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container": "#edeef0",
+                        "tertiary-container": "#6e2c00",
+                        "surface-tint": "#4059aa",
+                        "on-primary-container": "#90a8ff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f0f1f3",
+                        "secondary-container": "#6cf8bb",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "inverse-primary": "#b6c4ff",
+                        "primary-fixed": "#dce1ff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#4b1c00",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-container-low": "#f3f4f6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary": "#006c49",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#f39461",
+                        "on-secondary-container": "#00714d",
+                        "outline": "#757682",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f8f9fb;
+            font-family: 'Inter', sans-serif;
+            color: #191c1e;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50 dark:bg-slate-900 shadow-none">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex items-center justify-center">
+<img alt="Property Manager Profile" class="w-full h-full object-cover" data-alt="Professional headshot of a property manager in a clean white background, soft lighting, professional and friendly expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3fYhW23GPaVmhYk4oVIZy2ukDZ5u6aGxg8mP7LFdVkxDj81xnbojWT-UArDLECE-zmEdbK3ahQK393HqH3WDYTb6s-10ZuQuFT-mUdw4viKRUHRrMKo7nM_KWWN_T7Vs2EWxuvHL87IHVChIQkW5cOpC3ilSJBmCm2wr8GbDFb6cbzpTvjLwa2q19Ck91PsSYpRk2PnPF3SyKyNjdCGAF762egZaNfFmk8FZCCSsal6RAszraVFBdLpTUPPv4EjBNuHAL-5zy7ro"/>
+</div>
+<h1 class="font-['Manrope'] font-bold tracking-tight text-xl text-blue-900 dark:text-blue-400 tracking-tighter">The Curator</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 transition-all duration-300 ease-in-out hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-500 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 transition-all duration-300 ease-in-out hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-500 rounded-full">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-6 max-w-5xl mx-auto">
+<!-- Editorial Header -->
+<div class="mb-12">
+<span class="font-label text-[12px] font-medium tracking-widest uppercase text-secondary mb-2 block">Registration Protocol</span>
+<h2 class="font-headline text-4xl font-extrabold text-primary tracking-tight mb-4">Tenant Onboarding</h2>
+<p class="text-on-surface-variant font-body max-w-2xl leading-relaxed">
+                Initiate a new residency profile. This editorial-grade onboarding ensures all legal KYC requirements are met while maintaining the architectural integrity of our tenant database.
+            </p>
+</div>
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Sidebar Stepper -->
+<aside class="lg:w-1/4">
+<nav class="space-y-1">
+<!-- Step 1: Active -->
+<div class="flex items-center gap-4 p-4 rounded-xl bg-primary-container text-on-primary-container shadow-sm border-l-4 border-primary">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-tighter opacity-70">Step 01</span>
+<span class="font-headline font-bold text-sm">Personal Details</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex items-center gap-4 p-4 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors group">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-tighter opacity-50 group-hover:opacity-100">Step 02</span>
+<span class="font-headline font-bold text-sm opacity-60 group-hover:opacity-100">KYC &amp; Identity</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex items-center gap-4 p-4 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors group">
+<span class="material-symbols-outlined" data-icon="meeting_room">meeting_room</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-tighter opacity-50 group-hover:opacity-100">Step 03</span>
+<span class="font-headline font-bold text-sm opacity-60 group-hover:opacity-100">Room Assignment</span>
+</div>
+</div>
+</nav>
+<!-- Status Card -->
+<div class="mt-8 p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/15 shadow-sm">
+<h4 class="font-headline font-bold text-sm text-primary mb-4">Onboarding Summary</h4>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-xs text-on-surface-variant font-medium">Draft Status</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase tracking-wider">In Progress</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="w-1/3 bg-primary h-full rounded-full"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Form Canvas -->
+<div class="flex-1 space-y-8">
+<!-- Section 1: Personal Profile -->
+<section class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+</div>
+<h3 class="font-headline font-bold text-xl">Identity Information</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Full Name (Legal)</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="e.g. Julian Henderson" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email Address</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="julian@example.com" type="email"/>
+</div>
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone Number</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="+91 00000 00000" type="tel"/>
+</div>
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Gender</label>
+<select class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all">
+<option>Select Identity</option>
+<option>Male</option>
+<option>Female</option>
+<option>Non-Binary</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Section 2: ID Upload & Room -->
+<section class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="fingerprint">fingerprint</span>
+</div>
+<h3 class="font-headline font-bold text-xl">KYC &amp; Assignment</h3>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Aadhaar / Govt ID Number</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="XXXX XXXX XXXX" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Room &amp; Bed Allocation</label>
+<select class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all">
+<option>Select Available Unit</option>
+<option>Suite 204 - Bed A (Available)</option>
+<option>Suite 301 - Bed B (Available)</option>
+<option>Studio 10 - Primary (Available)</option>
+</select>
+</div>
+</div>
+<!-- Photo Upload Placeholder -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Document Verification Photo</label>
+<div class="relative group cursor-pointer">
+<div class="w-full h-48 rounded-2xl bg-surface-container-low border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center transition-all group-hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined text-4xl mb-2" data-icon="cloud_upload">cloud_upload</span>
+<p class="font-headline text-sm font-bold">Drag and drop ID front &amp; back</p>
+<p class="font-body text-[10px] uppercase tracking-tighter opacity-60">PNG, JPG or PDF up to 10MB</p>
+</div>
+<input class="absolute inset-0 opacity-0 cursor-pointer" type="file"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Emergency Contacts -->
+<section class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="emergency_share">emergency_share</span>
+</div>
+<h3 class="font-headline font-bold text-xl">Emergency Contact</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact Name</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="Guardian Full Name" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Relation</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="e.g. Father, Spouse" type="text"/>
+</div>
+<div class="md:col-span-2 space-y-2">
+<label class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider">Emergency Phone</label>
+<input class="w-full bg-surface-container-low border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm transition-all" placeholder="+91 00000 00000" type="tel"/>
+</div>
+</div>
+</section>
+<!-- Actions -->
+<div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-4">
+<button class="w-full md:w-auto px-8 py-4 font-headline font-bold text-primary hover:bg-surface-container transition-all rounded-xl">
+                        Save as Draft
+                    </button>
+<button class="w-full md:w-auto px-12 py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="person_add">person_add</span>
+                        Onboard Tenant
+                    </button>
+</div>
+<div class="p-4 bg-secondary-fixed/10 rounded-2xl flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
+<p class="text-[11px] text-on-secondary-fixed-variant font-body leading-relaxed">
+                        Clicking "Onboard Tenant" will finalize the KYC process, allocate the selected room unit, and automatically generate and transmit secure portal credentials to the tenant's registered email and phone number via encrypted SMS.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-100/10 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] rounded-t-3xl h-20 flex justify-around items-center px-4 pt-3 pb-6">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="bed">bed</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase">Inventory</span>
+</div>
+<div class="flex flex-col items-center justify-center text-blue-900 dark:text-blue-400 scale-110 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase">Tenants</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase">Payments</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase">More</span>
+</div>
+</nav>
+</body></html>

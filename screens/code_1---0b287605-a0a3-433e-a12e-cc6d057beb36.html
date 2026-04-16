@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#1e3a8a",
+                    "surface-container-low": "#f3f4f6",
+                    "on-primary-fixed-variant": "#264191",
+                    "primary": "#00236f",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#4059aa",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#90a8ff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "inverse-surface": "#2e3132",
+                    "tertiary-container": "#6e2c00",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-container-high": "#e7e8ea",
+                    "on-surface-variant": "#444651",
+                    "on-surface": "#191c1e",
+                    "tertiary-fixed": "#ffdbcb",
+                    "outline-variant": "#c5c5d3",
+                    "inverse-on-surface": "#f0f1f3",
+                    "outline": "#757682",
+                    "surface-bright": "#f8f9fb",
+                    "on-primary-fixed": "#00164e",
+                    "surface-variant": "#e1e2e4",
+                    "tertiary": "#4b1c00",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "inverse-primary": "#b6c4ff",
+                    "error": "#ba1a1a",
+                    "surface-container": "#edeef0",
+                    "on-secondary-fixed": "#002113",
+                    "surface-dim": "#d9dadc",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "secondary-fixed-dim": "#4edea3",
+                    "background": "#f8f9fb",
+                    "on-error-container": "#93000a",
+                    "on-background": "#191c1e",
+                    "surface": "#f8f9fb",
+                    "primary-fixed": "#dce1ff",
+                    "secondary-container": "#6cf8bb",
+                    "secondary": "#006c49",
+                    "on-tertiary-container": "#f39461",
+                    "surface-container-highest": "#e1e2e4",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-shift-layering {
+            background: linear-gradient(180deg, rgba(248, 249, 251, 0) 0%, rgba(248, 249, 251, 1) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-slate-50 dark:bg-slate-950 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container">
+<img alt="tenant_profile_photo" class="w-full h-full object-cover" data-alt="professional portrait of a young man with a friendly expression in soft architectural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB813AY2a7E79JwBuNxdV13hLt8nErcfb4IkgffHfsF7bndSLtWz-7w_j0C1ZPE6M0S-wo803kALl1MtzaxIfJxKwQA25UemxlBcLJJYaaPi983PeDrp_N97GwKXb9hQL40x48QpkvYUMxSdncJrXDb0Rcq_PN_MNufwscYr1FZiHLZJdNzu7Qkv3T20jkRqIWmFD5Tb2s4eQqxmpDydLM4FcO4KMe95Ap0Imr6rHwj_2bP8FNKJ36ilds6H9Kj83PAKd10zKqZwVQ"/>
+</div>
+<h1 class="font-manrope font-black text-blue-900 dark:text-blue-200 tracking-tighter text-lg">Estate Residence</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-blue-900 dark:text-blue-400 hover:bg-slate-200/50 transition-colors duration-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-6 pb-32 space-y-8">
+<!-- Hero Section: Welcome & Essential Room Info -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="lg:col-span-8 flex flex-col justify-end p-8 rounded-3xl relative overflow-hidden bg-primary text-on-primary min-h-[280px]">
+<img class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" data-alt="modern minimalist luxury apartment interior with clean lines and soft sunlight hitting neutral surfaces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBqXv7buZrByqB8RRyrLdsbfKxFH9mlfDs-2KZFQ71i3t5lh6_cpL61t_E1kx_gMUPsyaSQiaZazB4Aklcv2a0T5hV0QnMo6CMIzN-TxjPYmIawM4kBGv88Gr6tqz7w0ODf6bto5ZtX04gAKMgFkqi_8I7XC6EhMe4umEjAsO8g2dYPcH9rdbQitmTiL_Jsv6H0HQpX7Ahlky1FjNlAqSDsgZ8pPYHT13A28sp1KWBdHJ75JO8t3YjvIMBWrbZk4_LBLn8RspVSsA"/>
+<div class="relative z-10">
+<p class="font-label text-xs uppercase tracking-[0.2em] opacity-80 mb-2">Welcome Back</p>
+<h2 class="font-headline text-4xl font-extrabold mb-1 tracking-tight">Suite 304B</h2>
+<p class="font-body text-primary-fixed opacity-90 max-w-md">Your sanctuary at Estate Residence. All systems operational and clean.</p>
+</div>
+</div>
+<!-- Financial Quick View -->
+<div class="lg:col-span-4 bg-surface-container-lowest p-8 rounded-3xl flex flex-col justify-between border border-outline-variant/15">
+<div>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Outstanding Dues</span>
+<div class="flex items-baseline gap-1 mt-2">
+<span class="font-headline text-5xl font-black text-primary">₹1,200</span>
+</div>
+</div>
+<div class="mt-8 space-y-3">
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-headline font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">payments</span>
+                        Settle Balance
+                    </button>
+<p class="text-center font-label text-[11px] text-on-surface-variant">Next billing cycle starts in 12 days</p>
+</div>
+</div>
+</section>
+<!-- Main Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Meal Concierge -->
+<div class="bg-surface-container-low p-6 rounded-3xl flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-on-secondary-container/10 rounded-2xl">
+<span class="material-symbols-outlined text-on-secondary-container">restaurant</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label text-[10px] font-bold uppercase tracking-wider">Tonight</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-1">Dinner</h3>
+<p class="font-body text-on-surface-variant text-sm">Chicken Chettinad w/ Steamed Basmati &amp; Paratha</p>
+</div>
+<div class="mt-auto pt-4 flex gap-2">
+<button class="flex-1 py-2 px-4 rounded-xl bg-surface-container-lowest text-primary font-label text-xs font-semibold hover:bg-primary/5 transition-colors">Skip Meal</button>
+<button class="flex-1 py-2 px-4 rounded-xl bg-surface-container-lowest text-primary font-label text-xs font-semibold hover:bg-primary/5 transition-colors">Feedback</button>
+</div>
+</div>
+<!-- Announcements & Notices -->
+<div class="bg-surface-container-low p-6 rounded-3xl flex flex-col">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">campaign</span>
+<h3 class="font-headline text-lg font-bold">Community Board</h3>
+</div>
+<div class="space-y-5">
+<div class="flex gap-4 group cursor-pointer">
+<div class="w-1 bg-primary rounded-full transition-all group-hover:w-1.5"></div>
+<div>
+<p class="font-label text-[11px] text-on-surface-variant uppercase tracking-tighter">Scheduled Maint</p>
+<h4 class="font-headline text-sm font-bold leading-tight">Elevator maintenance in Block B this Tuesday.</h4>
+</div>
+</div>
+<div class="flex gap-4 group cursor-pointer">
+<div class="w-1 bg-tertiary-container rounded-full transition-all group-hover:w-1.5"></div>
+<div>
+<p class="font-label text-[11px] text-on-surface-variant uppercase tracking-tighter">Event</p>
+<h4 class="font-headline text-sm font-bold leading-tight">Terrace BBQ &amp; Movie Night: Friday at 8:00 PM.</h4>
+</div>
+</div>
+<div class="flex gap-4 group cursor-pointer">
+<div class="w-1 bg-secondary rounded-full transition-all group-hover:w-1.5"></div>
+<div>
+<p class="font-label text-[11px] text-on-surface-variant uppercase tracking-tighter">Inventory</p>
+<h4 class="font-headline text-sm font-bold leading-tight">New high-speed laundry pods installed.</h4>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions & Assistance -->
+<div class="bg-surface-container-lowest border border-outline-variant/15 p-6 rounded-3xl flex flex-col">
+<h3 class="font-headline text-lg font-bold mb-6">Support Hub</h3>
+<div class="grid grid-cols-2 gap-3 h-full">
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-surface-container-low hover:bg-primary/5 transition-all text-on-surface-variant hover:text-primary group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">report_problem</span>
+<span class="font-label text-xs font-semibold">New Ticket</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-surface-container-low hover:bg-primary/5 transition-all text-on-surface-variant hover:text-primary group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">wifi</span>
+<span class="font-label text-xs font-semibold">WiFi Help</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-surface-container-low hover:bg-primary/5 transition-all text-on-surface-variant hover:text-primary group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">cleaning_services</span>
+<span class="font-label text-xs font-semibold">Housekeeping</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-surface-container-low hover:bg-primary/5 transition-all text-on-surface-variant hover:text-primary group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">contact_support</span>
+<span class="font-label text-xs font-semibold">Contact Mgr</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Amenity Status - High Density Module -->
+<section class="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/15 overflow-hidden relative">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+<div>
+<h3 class="font-headline text-2xl font-extrabold tracking-tight">Facility Access</h3>
+<p class="font-body text-on-surface-variant text-sm">Real-time occupancy for shared spaces</p>
+</div>
+<button class="text-primary font-headline text-sm font-bold flex items-center gap-2">
+                    View Schedule <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="p-5 rounded-2xl bg-surface-container-low">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold block mb-3">Gymnasium</span>
+<div class="flex items-center justify-between">
+<span class="text-secondary font-headline text-lg font-bold">Active</span>
+<span class="font-body text-xs text-on-surface-variant">4/12 Units</span>
+</div>
+</div>
+<div class="p-5 rounded-2xl bg-surface-container-low">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold block mb-3">Study Pods</span>
+<div class="flex items-center justify-between">
+<span class="text-secondary font-headline text-lg font-bold">Available</span>
+<span class="font-body text-xs text-on-surface-variant">8 Free</span>
+</div>
+</div>
+<div class="p-5 rounded-2xl bg-surface-container-low">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold block mb-3">Cinema Hall</span>
+<div class="flex items-center justify-between">
+<span class="text-tertiary-container font-headline text-lg font-bold">In Use</span>
+<span class="font-body text-xs text-on-surface-variant">Private Bk.</span>
+</div>
+</div>
+<div class="p-5 rounded-2xl bg-surface-container-low">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold block mb-3">Guest Lounge</span>
+<div class="flex items-center justify-between">
+<span class="text-secondary font-headline text-lg font-bold">Empty</span>
+<span class="font-body text-xs text-on-surface-variant">Ready</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.06)] rounded-t-3xl border-t border-white/20">
+<a class="flex flex-col items-center gap-1 bg-blue-100/50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-xl px-4 py-2 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">restaurant</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Food</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Payments</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Complaints</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>

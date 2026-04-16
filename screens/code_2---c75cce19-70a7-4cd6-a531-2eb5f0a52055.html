@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tenant Food &amp; Meal Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        .headline-font {
+            font-family: 'Manrope', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#00714d",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#1e3a8a",
+                      "surface-container-low": "#f3f4f6",
+                      "on-primary-fixed-variant": "#264191",
+                      "primary": "#00236f",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#4059aa",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#90a8ff",
+                      "on-secondary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed": "#6ffbbe",
+                      "inverse-surface": "#2e3132",
+                      "tertiary-container": "#6e2c00",
+                      "on-tertiary-fixed": "#341100",
+                      "surface-container-high": "#e7e8ea",
+                      "on-surface-variant": "#444651",
+                      "on-surface": "#191c1e",
+                      "tertiary-fixed": "#ffdbcb",
+                      "outline-variant": "#c5c5d3",
+                      "inverse-on-surface": "#f0f1f3",
+                      "outline": "#757682",
+                      "surface-bright": "#f8f9fb",
+                      "on-primary-fixed": "#00164e",
+                      "surface-variant": "#e1e2e4",
+                      "tertiary": "#4b1c00",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "inverse-primary": "#b6c4ff",
+                      "error": "#ba1a1a",
+                      "surface-container": "#edeef0",
+                      "on-secondary-fixed": "#002113",
+                      "surface-dim": "#d9dadc",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "secondary-fixed-dim": "#4edea3",
+                      "background": "#f8f9fb",
+                      "on-error-container": "#93000a",
+                      "on-background": "#191c1e",
+                      "surface": "#f8f9fb",
+                      "primary-fixed": "#dce1ff",
+                      "secondary-container": "#6cf8bb",
+                      "secondary": "#006c49",
+                      "on-tertiary-container": "#f39461",
+                      "surface-container-highest": "#e1e2e4",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-slate-50 dark:bg-slate-950 flex justify-between items-center px-6 py-4 transition-colors duration-300">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a young man in a modern apartment setting, soft natural lighting, high-end lifestyle aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFKyJgzMxX3SCgkiFd2Iub_YfD4vyarvg2zqmLaV8FhF78TIycXC4hs3tQwiHUczF0XONGNc_G0owMvMykXjEcp5SEU4No9BuNlVjRKPmF6-1d20FNVZkIGwh4HqsDPPe2d2TWsYNL9RTkXsSfpklsfzIHJq7WTCWwDLVGOIc1Q0rsI7HedsIw3T-m4Qz-KCp5z5W0GSV_qdejuDU5s_7dpKtTb-wPyvu0erAH7-qePNuRgdSqegzbv1Gh8zwAj2dvl9EBH1Vvy2A"/>
+</div>
+<span class="font-manrope font-black text-blue-900 dark:text-blue-200 tracking-tighter text-lg">Estate Residence</span>
+</div>
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-300">
+<span class="material-symbols-outlined text-blue-900 dark:text-blue-400">notifications</span>
+</button>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-8">
+<!-- Hero Section: Active Status -->
+<section class="mb-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="font-headline font-extrabold text-4xl tracking-tight text-primary mb-2">Today's Kitchen</h2>
+<p class="font-label text-sm uppercase tracking-widest text-on-surface-variant font-semibold">Monday, 23 October</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex items-center gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-tighter text-secondary">Kitchen Status</span>
+<span class="font-headline font-bold text-lg text-on-surface">Live Preparation</span>
+</div>
+<div class="h-8 w-[2px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+</span>
+<span class="font-label text-sm font-medium">Open</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Today's Menu & Controls -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+<!-- Meal Selection: Breakfast -->
+<div class="lg:col-span-1 bg-surface-container-lowest p-6 rounded-full shadow-sm flex flex-col justify-between border-b-4 border-primary/10">
+<div class="flex justify-between items-start mb-6">
+<div class="p-3 bg-primary-fixed rounded-xl">
+<span class="material-symbols-outlined text-primary">breakfast_dining</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<span class="font-label text-[11px] font-bold text-primary uppercase tracking-widest">08:00 AM - 10:00 AM</span>
+<h3 class="font-headline font-bold text-2xl text-on-surface mt-1">Breakfast</h3>
+<p class="text-on-surface-variant text-sm mt-3 leading-relaxed">Artisan Multigrain Paratha with Chilled Greek Yogurt &amp; Seasonal Fruit Bowl.</p>
+</div>
+<div class="mt-6 flex items-center gap-2 text-secondary font-medium text-xs">
+<span class="material-symbols-outlined text-sm" data-weight="fill">check_circle</span>
+                    Opted In
+                </div>
+</div>
+<!-- Meal Selection: Lunch -->
+<div class="lg:col-span-1 bg-surface-container-lowest p-6 rounded-full shadow-sm flex flex-col justify-between border-b-4 border-secondary/10">
+<div class="flex justify-between items-start mb-6">
+<div class="p-3 bg-secondary-container rounded-xl">
+<span class="material-symbols-outlined text-on-secondary-container">lunch_dining</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div>
+<span class="font-label text-[11px] font-bold text-secondary uppercase tracking-widest">01:00 PM - 02:30 PM</span>
+<h3 class="font-headline font-bold text-2xl text-on-surface mt-1">Lunch</h3>
+<p class="text-on-surface-variant text-sm mt-3 leading-relaxed">Slow-cooked Dal Makhani, Steamed Basmati, Sautéed Seasonal Greens &amp; Garlic Naan.</p>
+</div>
+<div class="mt-6 flex items-center gap-2 text-secondary font-medium text-xs">
+<span class="material-symbols-outlined text-sm" data-weight="fill">check_circle</span>
+                    Opted In
+                </div>
+</div>
+<!-- Meal Selection: Dinner -->
+<div class="lg:col-span-1 bg-surface-container-lowest p-6 rounded-full shadow-sm flex flex-col justify-between border-b-4 border-tertiary-fixed-dim/30">
+<div class="flex justify-between items-start mb-6">
+<div class="p-3 bg-tertiary-fixed rounded-xl">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant">dinner_dining</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<span class="font-label text-[11px] font-bold text-on-tertiary-fixed-variant uppercase tracking-widest">08:00 PM - 09:30 PM</span>
+<h3 class="font-headline font-bold text-2xl text-on-surface mt-1">Dinner</h3>
+<p class="text-on-surface-variant text-sm mt-3 leading-relaxed">Paneer Tikka Masala, Fresh Tandoori Roti, and Garden Salad with Lemon Vinaigrette.</p>
+</div>
+<div class="mt-6 flex items-center gap-2 text-outline font-medium text-xs">
+<span class="material-symbols-outlined text-sm">cancel</span>
+                    Opted Out
+                </div>
+</div>
+</div>
+<!-- Weekly Menu Explorer -->
+<section class="mb-12">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline font-bold text-2xl text-on-surface">Weekly Culinary Forecast</h3>
+<button class="text-primary font-label text-sm font-semibold flex items-center gap-1">
+                    Full Month View
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-2 px-2">
+<!-- Days of Week Cards -->
+<div class="min-w-[160px] bg-surface-container-low p-5 rounded-2xl flex flex-col items-center border border-transparent hover:border-primary/20 transition-all cursor-pointer group">
+<span class="text-xs font-bold text-on-surface-variant uppercase mb-1">Tue</span>
+<span class="text-2xl font-headline font-black text-on-surface group-hover:text-primary transition-colors">24</span>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed border-2 border-surface-container-low"></div>
+<div class="w-6 h-6 rounded-full bg-secondary-fixed border-2 border-surface-container-low"></div>
+</div>
+</div>
+<div class="min-w-[160px] bg-primary text-on-primary p-5 rounded-2xl flex flex-col items-center shadow-lg shadow-primary/20">
+<span class="text-xs font-bold text-on-primary/60 uppercase mb-1">Wed</span>
+<span class="text-2xl font-headline font-black">25</span>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-white/30 border-2 border-primary"></div>
+<div class="w-6 h-6 rounded-full bg-white/30 border-2 border-primary"></div>
+</div>
+</div>
+<div class="min-w-[160px] bg-surface-container-low p-5 rounded-2xl flex flex-col items-center border border-transparent hover:border-primary/20 transition-all cursor-pointer group">
+<span class="text-xs font-bold text-on-surface-variant uppercase mb-1">Thu</span>
+<span class="text-2xl font-headline font-black text-on-surface group-hover:text-primary">26</span>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed border-2 border-surface-container-low"></div>
+<div class="w-6 h-6 rounded-full bg-secondary-fixed border-2 border-surface-container-low"></div>
+</div>
+</div>
+<div class="min-w-[160px] bg-surface-container-low p-5 rounded-2xl flex flex-col items-center border border-transparent hover:border-primary/20 transition-all cursor-pointer group">
+<span class="text-xs font-bold text-on-surface-variant uppercase mb-1">Fri</span>
+<span class="text-2xl font-headline font-black text-on-surface group-hover:text-primary">27</span>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed border-2 border-surface-container-low"></div>
+<div class="w-6 h-6 rounded-full bg-secondary-fixed border-2 border-surface-container-low"></div>
+</div>
+</div>
+<div class="min-w-[160px] bg-surface-container-low p-5 rounded-2xl flex flex-col items-center border border-transparent hover:border-primary/20 transition-all cursor-pointer group">
+<span class="text-xs font-bold text-on-surface-variant uppercase mb-1">Sat</span>
+<span class="text-2xl font-headline font-black text-on-surface group-hover:text-primary">28</span>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed border-2 border-surface-container-low"></div>
+</div>
+</div>
+<div class="min-w-[160px] bg-surface-container-low p-5 rounded-2xl flex flex-col items-center border border-transparent hover:border-primary/20 transition-all cursor-pointer group">
+<span class="text-xs font-bold text-on-surface-variant uppercase mb-1">Sun</span>
+<span class="text-2xl font-headline font-black text-on-surface group-hover:text-primary">29</span>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed border-2 border-surface-container-low"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feedback & History Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+<!-- Meal History -->
+<div class="bg-surface-container-low rounded-3xl p-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline font-bold text-xl text-on-surface">Recent Dining Log</h3>
+<span class="material-symbols-outlined text-outline">history</span>
+</div>
+<div class="space-y-4">
+<div class="bg-white p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">lunch_dining</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Paneer Butter Masala</p>
+<p class="text-xs text-on-surface-variant">Yesterday, Lunch</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-secondary font-bold">
+<span class="material-symbols-outlined text-sm" data-weight="fill">star</span>
+<span>4.8</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">dinner_dining</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Vegetable Pulao</p>
+<p class="text-xs text-on-surface-variant">21 Oct, Dinner</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-bold">
+<span class="material-symbols-outlined text-sm">star</span>
+<span>--</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Feedback Widget -->
+<div class="bg-primary text-on-primary rounded-3xl p-8 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-2xl mb-2">Enhance the Menu</h3>
+<p class="text-on-primary/70 text-sm mb-6 max-w-xs">Your palate matters. Suggest a dish or rate today's service to help us serve better.</p>
+<div class="flex gap-2 mb-6">
+<button class="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 transition-colors rounded-xl font-label font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-base">edit</span>
+                            Suggest
+                        </button>
+<button class="flex-1 py-3 px-4 bg-secondary text-on-secondary rounded-xl font-label font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-base">rate_review</span>
+                            Review
+                        </button>
+</div>
+<div class="flex items-center gap-4 pt-4 border-t border-white/10">
+<div class="flex -space-x-3">
+<div class="w-8 h-8 rounded-full border-2 border-primary bg-surface-container overflow-hidden">
+<img data-alt="close-up of a smiling woman in a bright office space, soft lighting, vibrant professional portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO_sQq38WR7xAww8uVq2_bNl7yt0O-SXEsiRS7-V0HxCD-KVK7Rh9aX_QADNV63dbV5jrRETJ2T12gtin6cNaFQXecDroQcdKOARY4LV662WcC3gaqz9MjgIzlsIIykDxXKRnViPmhQ8PZXXc8ic8iRg1Sv6E9m3mjsD-7zXFTJPmKGh1pSBljqM7ChGloT14fCRgTCR5d3NYgqJugpieCZVz_-bB-bAXkKH9WZuPxniLr6IrfERV5b9CNtRkpG4uBrmP7qPOQ9bk"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-primary bg-surface-container overflow-hidden">
+<img data-alt="portrait of a man with spectacles in a clean, minimalist setting, neutral tones, editorial photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRKQc4wa9QRNgrxSuL9rsLy6j31Kt1ENKXv8UtaCVB2dNmLcWgBGcIGyqUKoD7NfmvNQe6W6klUMO7w_CIP_TdN_ncbjgiJA1M-PQiVm89d4520pyZQ3gTS68-hCu2n2_CFs22-GYh9NuPDkYpUs_6f1Ihhm_48ASEJ6uiGQwWn8C3a4eYp3IOy6UmhXs8Z3wqiprpOce1Ss5gMdjvaYVLrg4P5FjlPxCq248dPGO1E4frBg15M7mWwllVCD2SUhFbesJUzFWDxoU"/>
+</div>
+</div>
+<span class="text-xs font-medium text-on-primary/60">12 tenants suggested "Tacos" this week</span>
+</div>
+</div>
+<!-- Decorative element -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.06)] rounded-t-3xl border-t border-white/20">
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 bg-blue-100/50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-xl px-4 py-2 scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-weight="fill">restaurant</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Food</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Payments</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Complaints</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-inter font-medium text-[11px] uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>

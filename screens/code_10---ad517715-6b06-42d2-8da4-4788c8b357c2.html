@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Staff Management &amp; Payroll | The Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#444651",
+                    "primary": "#00236f",
+                    "outline-variant": "#c5c5d3",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-bright": "#f8f9fb",
+                    "on-surface": "#191c1e",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-variant": "#e1e2e4",
+                    "on-background": "#191c1e",
+                    "surface-dim": "#d9dadc",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "surface-container": "#edeef0",
+                    "tertiary-container": "#6e2c00",
+                    "surface-tint": "#4059aa",
+                    "on-primary-container": "#90a8ff",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f0f1f3",
+                    "secondary-container": "#6cf8bb",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#1e3a8a",
+                    "inverse-primary": "#b6c4ff",
+                    "primary-fixed": "#dce1ff",
+                    "tertiary-fixed": "#ffdbcb",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#4b1c00",
+                    "surface-container-high": "#e7e8ea",
+                    "surface-container-low": "#f3f4f6",
+                    "secondary-fixed-dim": "#4edea3",
+                    "secondary": "#006c49",
+                    "on-primary-fixed": "#00164e",
+                    "on-primary-fixed-variant": "#264191",
+                    "on-secondary-fixed": "#002113",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "surface-container-highest": "#e1e2e4",
+                    "surface": "#f8f9fb",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#f39461",
+                    "on-secondary-container": "#00714d",
+                    "outline": "#757682",
+                    "background": "#f8f9fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fb;
+        }
+        h1, h2, h3 {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface select-none">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50 dark:bg-slate-900 transition-all duration-300 ease-in-out">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Professional portrait of a property manager in a well-lit modern office setting, soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-O99JwRn8GvEuuomgEAaBhNKImkwYEmuuWslADpxENNLBbIlLCsT6Xj61xtfIJ5Qt33hTqsiBNLm9umiIW5NnF_069jYrtLixcFwAovamDJTCq7P3FbP88GoGyqTbMQOpKqXDsD0HGsleFIjqrcNhrR6HsJRDSYaVft-Tj_KnNHHx4hYHLk2wUDXhxlUFs0ZxWaFONqA7liETuL7rFpofpL1jzyveW6vE8J-nL4lQTKPYrIaDhqD8Dcbo1JJ8Hs6zE79Fgpq8zJA"/>
+</div>
+<span class="text-xl font-bold text-blue-900 dark:text-blue-400 tracking-tighter font-['Manrope']">The Curator</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all">
+<span class="material-symbols-outlined text-slate-500">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-20 pb-28 px-6 max-w-screen-2xl mx-auto">
+<!-- Hero Section & Quick Actions -->
+<section class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<p class="text-sm font-medium text-secondary tracking-widest uppercase mb-1">Operations</p>
+<h1 class="text-4xl font-extrabold text-primary tracking-tight">Staff &amp; Payroll</h1>
+</div>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95">
+<span class="material-symbols-outlined">person_add</span>
+<span>Onboard New Staff</span>
+</button>
+</section>
+<!-- Payroll Highlights Bento -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary-fixed rounded-xl text-on-primary-fixed">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="text-xs font-bold text-secondary-fixed-dim px-2 py-1 bg-secondary-fixed/10 rounded-lg">+12% vs last month</span>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Monthly Payroll</p>
+<h2 class="text-3xl font-extrabold text-primary mt-1 tracking-tight">$42,850</h2>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm border-l-4 border-secondary">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-secondary-fixed rounded-xl text-on-secondary-fixed">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Advance Paid</p>
+<h2 class="text-3xl font-extrabold text-on-surface mt-1 tracking-tight">$8,200</h2>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm border-l-4 border-error">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-error-container rounded-xl text-on-error-container">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Pending Balance</p>
+<h2 class="text-3xl font-extrabold text-error mt-1 tracking-tight">$34,650</h2>
+</div>
+</section>
+<!-- Main Staff Management Table-less List -->
+<section class="space-y-4">
+<div class="flex items-center justify-between mb-2 px-2">
+<h3 class="text-xl font-bold text-primary">Active Personnel</h3>
+<div class="flex items-center gap-2 text-sm text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="font-medium">Today, Oct 24</span>
+</div>
+</div>
+<!-- Staff Item 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-full flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4 w-full md:w-1/4">
+<div class="w-14 h-14 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-surface-container">
+<img alt="Cook Profile" class="w-full h-full object-cover" data-alt="Portrait of a male chef in a clean white uniform smiling in a kitchen setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz1FEwcroJUfrn0_gz1gVUfyjIu0-IcwrFjWCMRsJArdmyrjXWkXRgRmiMHWIXOKTDoEu9oAVd7XLk6EGerrQR8J56sft2mrgb1V6hDe2W2CJ0zQjKhm03gAr-0ZpNXmD5qcnWUyXrvwS9Me_MNGPSBKt1983kzgr4HOEyXLwofMK8OL-gzIL40HEz7gyNFBn8LQvZGbUWWzs_CKYwSWFQ_j7aMy7mrzR1hwMCXMTvmziaOaimwCX-cndgZmm3zbDcsBFsSAneA1c"/>
+</div>
+<div>
+<h4 class="font-bold text-on-surface text-lg leading-tight">Marcus Vane</h4>
+<span class="text-xs font-bold tracking-widest text-primary-fixed-dim bg-primary/10 px-2 py-0.5 rounded-md uppercase">Cook</span>
+</div>
+</div>
+<div class="flex flex-col items-center md:items-start w-full md:w-1/5">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mb-2">Daily Attendance</span>
+<div class="flex p-1 bg-surface-container rounded-full">
+<button class="px-4 py-1.5 rounded-full bg-secondary text-white text-xs font-bold shadow-sm">Present</button>
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant text-xs font-bold">Absent</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-8 w-full md:w-2/5 text-center md:text-left">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Salary</p>
+<p class="font-bold text-primary">$4,500</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Advance</p>
+<p class="font-bold text-on-surface">$500</p>
+</div>
+<div class="hidden md:block">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Balance</p>
+<p class="font-bold text-error">$4,000</p>
+</div>
+</div>
+<div class="shrink-0 w-full md:w-auto">
+<button class="w-full bg-surface-container-high text-primary px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all">
+                        Record Payment
+                    </button>
+</div>
+</div>
+<!-- Staff Item 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-full flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4 w-full md:w-1/4">
+<div class="w-14 h-14 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-surface-container">
+<img alt="Cleaner Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a professional female maintenance worker in a navy blue utility shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS76GkQ4koPQPM4Ho-5qgY7V03LH80L2m8hNJs6SstOOOsO3ceAW5xjGvfrJu9x4IAvKdnt-YVfEWUWGZ0P90qxPY1tXnhTUvBTI2wbCJi4Awli3cMOG5Qz6vhBXq6GDXyMx6YkgFfMVwU3fNJisuPeb_2xYR5FvVC98U1jSwscqDIsGDz4B1KkqfrHMRn_oT1MjePzcX7km_13M7YvDj-AQJrIJj40bN-6hkhDL-yIL0j-w2P0ssvxIIAewIkrTQURb66zo4j46A"/>
+</div>
+<div>
+<h4 class="font-bold text-on-surface text-lg leading-tight">Elena Rossi</h4>
+<span class="text-xs font-bold tracking-widest text-secondary bg-secondary/10 px-2 py-0.5 rounded-md uppercase">Cleaner</span>
+</div>
+</div>
+<div class="flex flex-col items-center md:items-start w-full md:w-1/5">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mb-2">Daily Attendance</span>
+<div class="flex p-1 bg-surface-container rounded-full">
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant text-xs font-bold">Present</button>
+<button class="px-4 py-1.5 rounded-full bg-error text-white text-xs font-bold shadow-sm">Absent</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-8 w-full md:w-2/5 text-center md:text-left">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Salary</p>
+<p class="font-bold text-primary">$3,200</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Advance</p>
+<p class="font-bold text-on-surface">$0</p>
+</div>
+<div class="hidden md:block">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Balance</p>
+<p class="font-bold text-error">$3,200</p>
+</div>
+</div>
+<div class="shrink-0 w-full md:w-auto">
+<button class="w-full bg-surface-container-high text-primary px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all">
+                        Record Payment
+                    </button>
+</div>
+</div>
+<!-- Staff Item 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-full flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4 w-full md:w-1/4">
+<div class="w-14 h-14 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-surface-container">
+<img alt="Security Profile" class="w-full h-full object-cover" data-alt="Middle-aged man in a security guard uniform with a serious but approachable expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5YYvD7IbTjueW6frRFaQyFUPmypMUQbsK2mqupMJyKZlgG9b66ucSR8LDgQV3YtZKkrthQlvmMJHbr8qa2QZi_eHRZJc2BxLPWKpGh30GEqs_zZMs_MrurKXA-6tUQQzvziyZUPymNspSzcdO-dQSxqbS_4cJBNUVGNzo-J_Y1Asx5nrMSP0cuAYrQ_usn75YfRljDDN6LH8xzZjFOJLmEfesuRT2O6Ki2Yn_WIaDfcC0f_3qA3uuWBGbg4Y01Aze07E4WxCgdDI"/>
+</div>
+<div>
+<h4 class="font-bold text-on-surface text-lg leading-tight">David Thorne</h4>
+<span class="text-xs font-bold tracking-widest text-on-tertiary-container bg-tertiary-fixed/30 px-2 py-0.5 rounded-md uppercase">Security</span>
+</div>
+</div>
+<div class="flex flex-col items-center md:items-start w-full md:w-1/5">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mb-2">Daily Attendance</span>
+<div class="flex p-1 bg-surface-container rounded-full">
+<button class="px-4 py-1.5 rounded-full bg-secondary text-white text-xs font-bold shadow-sm">Present</button>
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant text-xs font-bold">Absent</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-8 w-full md:w-2/5 text-center md:text-left">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Salary</p>
+<p class="font-bold text-primary">$5,800</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Advance</p>
+<p class="font-bold text-on-surface">$1,200</p>
+</div>
+<div class="hidden md:block">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Balance</p>
+<p class="font-bold text-error">$4,600</p>
+</div>
+</div>
+<div class="shrink-0 w-full md:w-auto">
+<button class="w-full bg-secondary text-on-secondary px-6 py-2.5 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Paid Full
+                    </button>
+</div>
+</div>
+</section>
+<!-- Attendance History Preview Card -->
+<section class="mt-12">
+<div class="bg-primary-container text-on-primary p-8 rounded-[2rem] overflow-hidden relative">
+<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+<div class="max-w-md">
+<h3 class="text-2xl font-bold mb-2">Weekly Performance Insights</h3>
+<p class="opacity-80 text-sm leading-relaxed">Staff attendance is at 94% this week. Productivity benchmarks for the cleaning crew have increased by 5% since the last update.</p>
+<div class="mt-6 flex gap-4">
+<div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md">
+<p class="text-xs uppercase font-bold opacity-60">Avg. Punctuality</p>
+<p class="text-xl font-bold">08:04 AM</p>
+</div>
+<div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md">
+<p class="text-xs uppercase font-bold opacity-60">Staff Morale</p>
+<p class="text-xl font-bold">High</p>
+</div>
+</div>
+</div>
+<div class="w-full md:w-1/2 h-48 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-6xl opacity-20">analytics</span>
+<div class="absolute inset-0 flex items-center justify-center">
+<p class="text-xs font-bold tracking-widest uppercase text-white/40">Visualizing Staff Productivity Map...</p>
+</div>
+</div>
+</div>
+<!-- Abstract visual element -->
+<div class="absolute -right-20 -bottom-20 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-20"></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-around items-center px-4 pt-3 pb-6 border-t border-slate-100/10 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] z-50 rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 hover:opacity-100 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 hover:opacity-100 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">bed</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-900 dark:text-blue-400 scale-110 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Staff</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 hover:opacity-100 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 hover:opacity-100 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">More</span>
+</a>
+</nav>
+</body></html>

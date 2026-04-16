@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Curator | Mess Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-surface-variant": "#444651",
+                "primary": "#00236f",
+                "outline-variant": "#c5c5d3",
+                "inverse-surface": "#2e3132",
+                "on-tertiary-fixed-variant": "#773205",
+                "on-secondary-fixed-variant": "#005236",
+                "surface-bright": "#f8f9fb",
+                "on-surface": "#191c1e",
+                "on-tertiary-fixed": "#341100",
+                "surface-variant": "#e1e2e4",
+                "on-background": "#191c1e",
+                "surface-dim": "#d9dadc",
+                "primary-fixed-dim": "#b6c4ff",
+                "surface-container": "#edeef0",
+                "tertiary-container": "#6e2c00",
+                "surface-tint": "#4059aa",
+                "on-primary-container": "#90a8ff",
+                "on-secondary": "#ffffff",
+                "error-container": "#ffdad6",
+                "error": "#ba1a1a",
+                "inverse-on-surface": "#f0f1f3",
+                "secondary-container": "#6cf8bb",
+                "secondary-fixed": "#6ffbbe",
+                "on-primary": "#ffffff",
+                "primary-container": "#1e3a8a",
+                "inverse-primary": "#b6c4ff",
+                "primary-fixed": "#dce1ff",
+                "tertiary-fixed": "#ffdbcb",
+                "on-error": "#ffffff",
+                "on-error-container": "#93000a",
+                "tertiary": "#4b1c00",
+                "surface-container-high": "#e7e8ea",
+                "surface-container-low": "#f3f4f6",
+                "secondary-fixed-dim": "#4edea3",
+                "secondary": "#006c49",
+                "on-primary-fixed": "#00164e",
+                "on-primary-fixed-variant": "#264191",
+                "on-secondary-fixed": "#002113",
+                "tertiary-fixed-dim": "#ffb691",
+                "surface-container-highest": "#e1e2e4",
+                "surface": "#f8f9fb",
+                "on-tertiary": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-container": "#f39461",
+                "on-secondary-container": "#00714d",
+                "outline": "#757682",
+                "background": "#f8f9fb"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50 dark:bg-slate-900 shadow-none transition-all duration-300 ease-in-out">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Property Manager Profile" class="w-full h-full object-cover" data-alt="Professional portrait of a male chef or property manager in a clean white uniform against a soft blurred kitchen background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJj-QX9uzyqBAmyJqscIOally_2HsMPfbtDFGV4zg7SvcmjjzQpPk9ofhW65C5BLZq14uJyAUxN_TNuHXq1s3rtd5aJQ5iZoMJ0YSz0XNaRrXWOcRjXddwvc-G-epNvCPkcv1YRx3bQE55_yyRnHBjEA1RzNvXLPPbdpSfoLBEbTrCfD6ZhEflfw96jUG_Qj_Je4K7p9H4DLWAgKTINGQ2quh5FaKZRLgjlsYp143N5hhJi7gJPAV6OG3PKsCv0T8cSdCU6PoVfDc"/>
+</div>
+<h1 class="text-xl font-bold text-blue-900 dark:text-blue-400 tracking-tighter font-['Manrope']">The Curator</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all">
+<span class="material-symbols-outlined text-slate-500">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-20 pb-32 px-6 max-w-screen-2xl mx-auto">
+<!-- Header Section -->
+<section class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="text-secondary font-label font-semibold text-sm tracking-widest uppercase mb-2 block">Culinary Operations</span>
+<h2 class="text-4xl font-extrabold text-primary tracking-tight">Mess Management</h2>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-low p-1 rounded-full border border-outline-variant/10">
+<button class="px-6 py-2.5 rounded-full bg-primary text-on-primary font-label font-bold text-sm shadow-lg transition-all">Manager View</button>
+<button class="px-6 py-2.5 rounded-full text-on-surface-variant font-label font-bold text-sm hover:bg-surface-container-high transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">skillet</span>
+                    Cook's View
+                </button>
+</div>
+</section>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm">
+<p class="text-on-surface-variant font-label text-xs font-semibold uppercase tracking-wider mb-1">Total Residents</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold text-on-surface">184</span>
+<span class="text-secondary text-xs font-bold">+4 new</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm">
+<p class="text-on-surface-variant font-label text-xs font-semibold uppercase tracking-wider mb-1">Breakfast Opt-ins</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold text-on-surface">142</span>
+<span class="text-on-surface-variant/60 text-xs">77%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm">
+<p class="text-on-surface-variant font-label text-xs font-semibold uppercase tracking-wider mb-1">Lunch Opt-ins</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold text-on-surface">96</span>
+<span class="text-error text-xs font-bold">-12%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-full shadow-sm">
+<p class="text-on-surface-variant font-label text-xs font-semibold uppercase tracking-wider mb-1">Dinner Opt-ins</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold text-on-surface">168</span>
+<span class="text-secondary text-xs font-bold">91%</span>
+</div>
+</div>
+</div>
+<!-- Weekly Planner Tabs -->
+<div class="flex items-center gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+<button class="flex-none px-8 py-3 rounded-full bg-primary text-on-primary font-bold transition-all">Monday</button>
+<button class="flex-none px-8 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-high transition-all">Tuesday</button>
+<button class="flex-none px-8 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-high transition-all">Wednesday</button>
+<button class="flex-none px-8 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-high transition-all">Thursday</button>
+<button class="flex-none px-8 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-high transition-all">Friday</button>
+<button class="flex-none px-8 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-high transition-all">Saturday</button>
+<button class="flex-none px-8 py-3 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-high transition-all">Sunday</button>
+</div>
+<!-- Meal Slots Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Breakfast Slot -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-full">wb_sunny</span>
+<h3 class="text-xl font-bold">Breakfast</h3>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="bg-surface-container-lowest rounded-full p-8 shadow-sm border border-outline-variant/5">
+<div class="space-y-6">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Masala Dosa &amp; Chutney</h4>
+<p class="text-on-surface-variant text-sm">Crispy rice crepe with spiced potato filling</p>
+</div>
+<span class="text-xs font-bold text-secondary uppercase tracking-tighter">Chef's Choice</span>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Greek Yogurt &amp; Fruit</h4>
+<p class="text-on-surface-variant text-sm">Low-calorie healthy alternative</p>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between border-t border-outline-variant/10">
+<span class="text-sm font-semibold text-on-surface-variant">Opted-in: 142/184</span>
+<button class="text-primary font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit Menu
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Lunch Slot -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-full">lunch_dining</span>
+<h3 class="text-xl font-bold">Lunch</h3>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="bg-surface-container-lowest rounded-full p-8 shadow-sm border border-outline-variant/5">
+<div class="space-y-6">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Paneer Butter Masala</h4>
+<p class="text-on-surface-variant text-sm">Rich tomato-based cottage cheese curry</p>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Jeera Rice &amp; Tandoori Roti</h4>
+<p class="text-on-surface-variant text-sm">Main course staples</p>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Fresh Garden Salad</h4>
+<p class="text-on-surface-variant text-sm">Seasonal local vegetables</p>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between border-t border-outline-variant/10">
+<span class="text-sm font-semibold text-on-surface-variant">Opted-in: 96/184</span>
+<button class="text-primary font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit Menu
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Dinner Slot -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-full">dinner_dining</span>
+<h3 class="text-xl font-bold">Dinner</h3>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="bg-surface-container-lowest rounded-full p-8 shadow-sm border border-outline-variant/5">
+<div class="space-y-6">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Chicken Chettinad</h4>
+<p class="text-on-surface-variant text-sm">Spicy South Indian chicken preparation</p>
+</div>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold">Spicy</span>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Mixed Dal Fry</h4>
+<p class="text-on-surface-variant text-sm">Lentils tempered with spices</p>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg text-on-surface">Gulab Jamun</h4>
+<p class="text-on-surface-variant text-sm">Sweet milk-solid dumplings</p>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between border-t border-outline-variant/10">
+<span class="text-sm font-semibold text-on-surface-variant">Opted-in: 168/184</span>
+<button class="text-primary font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit Menu
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Inventory / Preparation Guide (Cook's View Preview) -->
+<section class="mt-12">
+<h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">restaurant</span>
+                Kitchen Preparation Guide
+            </h3>
+<div class="bg-surface-container-low rounded-3xl p-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="space-y-4">
+<h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Core Ingredients</h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center bg-surface-container-lowest px-4 py-3 rounded-xl">
+<span class="font-medium">Basmati Rice</span>
+<span class="font-bold text-primary">18.5 kg</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-lowest px-4 py-3 rounded-xl">
+<span class="font-medium">Cottage Cheese</span>
+<span class="font-bold text-primary">12.0 kg</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-lowest px-4 py-3 rounded-xl">
+<span class="font-medium">Wheat Flour</span>
+<span class="font-bold text-primary">15.0 kg</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Daily Schedule</h4>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-sm">Breakfast prep: 05:30 AM</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-sm">Lunch service: 12:30 PM</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary-fixed-dim"></div>
+<span class="text-sm">Dinner prep: 06:00 PM</span>
+</div>
+</div>
+</div>
+<div class="bg-primary p-6 rounded-2xl text-on-primary">
+<h4 class="font-bold text-lg mb-2">Kitchen Note</h4>
+<p class="text-sm opacity-90 leading-relaxed mb-4">"Ensure fresh spices are grounded for the Chicken Chettinad tonight. Expected peak headcount at 08:30 PM."</p>
+<button class="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-sm transition-all border border-white/20">Update Note</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] border-t border-slate-100/10">
+<div class="flex justify-around items-center px-4 pt-3 pb-6 max-w-screen-2xl mx-auto">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-900 dark:text-blue-400 scale-110 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bed</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Tenants</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">More</span>
+</a>
+</div>
+</nav>
+</body></html>

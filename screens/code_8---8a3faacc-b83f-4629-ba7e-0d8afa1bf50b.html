@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Room &amp; Bed Inventory | The Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#444651",
+                        "primary": "#00236f",
+                        "outline-variant": "#c5c5d3",
+                        "inverse-surface": "#2e3132",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#f8f9fb",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed": "#341100",
+                        "surface-variant": "#e1e2e4",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d9dadc",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container": "#edeef0",
+                        "tertiary-container": "#6e2c00",
+                        "surface-tint": "#4059aa",
+                        "on-primary-container": "#90a8ff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f0f1f3",
+                        "secondary-container": "#6cf8bb",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "inverse-primary": "#b6c4ff",
+                        "primary-fixed": "#dce1ff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#4b1c00",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-container-low": "#f3f4f6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary": "#006c49",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#f39461",
+                        "on-secondary-container": "#00714d",
+                        "outline": "#757682",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50 dark:bg-slate-900 transition-all duration-300 ease-in-out">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Property Manager Profile" data-alt="professional portrait of a property manager in a modern minimalist office setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB98R6DpFgQWBplRdR3cxpkY2kVIB-SJHdoswQpsfywfpjeY96CUaRM5lYRTayB03fA0OH1c3rM-Nc6IPv1DBmjqK0xWL98RZ_85WKEFDF6Hs58JTkGRJQ2NqL-J8FpvzOZApoXKNuwakeCLBZ7LvDFkTwb3fp9rtqqK5e0tEnX4aoAa05-fPgGNL7XW6XHu9Pxqib92QEYRkCMUZZVwWBFJnW0gFHVH0Hr5ExtZbQmz7g_fWDrJS9PvdZXkPdNfwtjpFb9btn_Gg"/>
+</div>
+<span class="text-xl font-bold text-blue-900 dark:text-blue-400 tracking-tighter font-['Manrope']">The Curator</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all text-slate-500">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-screen-2xl mx-auto">
+<!-- Dashboard Summary Header -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="col-span-2">
+<h1 class="text-4xl font-extrabold tracking-tight text-primary mb-2">Inventory Management</h1>
+<p class="text-on-surface-variant font-medium">Overview of room allocation across floors.</p>
+</div>
+<div class="flex gap-4 items-end justify-end">
+<div class="text-right">
+<span class="block text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Total Capacity</span>
+<span class="text-3xl font-headline font-bold text-primary">124 <span class="text-lg font-normal text-outline">Beds</span></span>
+</div>
+<div class="w-px h-10 bg-outline-variant/30"></div>
+<div class="text-right">
+<span class="block text-[10px] uppercase tracking-widest text-secondary font-bold">Available</span>
+<span class="text-3xl font-headline font-bold text-secondary">18 <span class="text-lg font-normal text-outline">Beds</span></span>
+</div>
+</div>
+</section>
+<!-- Floor Navigation & Filter Shell -->
+<section class="mb-8">
+<div class="flex flex-wrap items-center justify-between gap-4 bg-surface-container-low p-2 rounded-full">
+<div class="flex gap-1">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary font-semibold text-sm transition-all">Floor 1</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container-high font-semibold text-sm transition-all">Floor 2</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container-high font-semibold text-sm transition-all">Floor 3</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container-high font-semibold text-sm transition-all">Penthouse</button>
+</div>
+<div class="flex items-center gap-3 pr-4">
+<span class="material-symbols-outlined text-outline">filter_list</span>
+<span class="text-sm font-medium text-on-surface-variant">All Types</span>
+</div>
+</div>
+</section>
+<!-- Room Grid: Floor 1 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Room Card 101 -->
+<div class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm border border-transparent hover:border-primary/10 transition-all group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING A</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 101</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-semibold px-2 py-0.5 bg-primary-fixed text-on-primary-fixed rounded-md">Double Occupancy</span>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 mb-8">
+<!-- Bed 1: Occupied -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">bed</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant leading-none mb-1">BED A</p>
+<p class="text-sm font-semibold text-primary">Arjun Sharma</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 bg-primary text-on-primary rounded uppercase">Occupied</span>
+</div>
+<!-- Bed 2: Vacant -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-outline">
+<span class="material-symbols-outlined">bed</span>
+</div>
+<div>
+<p class="text-xs font-bold text-outline leading-none mb-1">BED B</p>
+<p class="text-sm font-semibold text-outline-variant italic">Empty</p>
+</div>
+</div>
+<button class="text-[10px] font-bold px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full hover:bg-secondary transition-colors uppercase">Assign Bed</button>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-xl hover:bg-primary hover:text-on-primary transition-all">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-xl shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Quick View</button>
+</div>
+</div>
+<!-- Room Card 102 -->
+<div class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm border border-transparent hover:border-primary/10 transition-all group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING A</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 102</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-semibold px-2 py-0.5 bg-primary-fixed text-on-primary-fixed rounded-md">Single Premium</span>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 mb-8">
+<!-- Bed 1: Reserved -->
+<div class="flex items-center justify-between p-4 bg-tertiary-fixed/20 rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_seat</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-tertiary-fixed-variant leading-none mb-1">BED A</p>
+<p class="text-sm font-semibold text-on-tertiary-fixed">Reserved (R. Mehta)</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 bg-tertiary-container text-on-tertiary-container rounded uppercase">Reserved</span>
+</div>
+</div>
+<div class="mt-auto flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-xl hover:bg-primary hover:text-on-primary transition-all">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-xl shadow-lg shadow-primary/10 transition-all">Quick View</button>
+</div>
+</div>
+<!-- Room Card 103 -->
+<div class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm border border-transparent hover:border-primary/10 transition-all group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING B</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 103</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-semibold px-2 py-0.5 bg-primary-fixed text-on-primary-fixed rounded-md">Triple Occupancy</span>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 mb-8">
+<!-- Bed 1: Occupied -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">bed</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant leading-none">BED A</p>
+<p class="text-xs font-semibold text-primary">Vikram S.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+</div>
+<!-- Bed 2: Occupied -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">bed</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant leading-none">BED B</p>
+<p class="text-xs font-semibold text-primary">Rahul K.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+</div>
+<!-- Bed 3: Occupied -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">bed</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant leading-none">BED C</p>
+<p class="text-xs font-semibold text-primary">Snehal D.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-xl hover:bg-primary hover:text-on-primary transition-all">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-xl shadow-lg shadow-primary/10 transition-all">Quick View</button>
+</div>
+</div>
+</div>
+<!-- Advanced Analytics Bento Placeholder -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-2 bg-gradient-to-br from-primary to-primary-container p-8 rounded-[2.5rem] text-on-primary relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="text-xl font-headline font-bold mb-2">Demand Forecast</h4>
+<p class="text-on-primary-container text-sm mb-6 max-w-xs">Wing A is reaching 98% occupancy. Consider opening 3rd floor units earlier than planned.</p>
+<button class="px-6 py-2 bg-white/10 backdrop-blur-md rounded-full text-sm font-bold border border-white/20">View Trends</button>
+</div>
+<div class="absolute -right-12 -bottom-12 opacity-10">
+<span class="material-symbols-outlined text-[200px]">analytics</span>
+</div>
+</div>
+<div class="bg-secondary-fixed p-6 rounded-[2.5rem] flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-on-secondary-fixed text-4xl mb-4">bolt</span>
+<h4 class="text-on-secondary-fixed font-headline font-bold">Fast Moving</h4>
+</div>
+<div>
+<p class="text-on-secondary-fixed-variant text-sm font-medium">Single Rooms are currently most requested.</p>
+<p class="text-2xl font-bold text-on-secondary-fixed mt-1">Avg. 2d Vacancy</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-6 rounded-[2.5rem] flex flex-col justify-between border border-outline-variant/20">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary text-3xl">construction</span>
+<span class="text-[10px] font-bold bg-error text-on-error px-2 py-0.5 rounded-full uppercase">Alert</span>
+</div>
+<div>
+<h4 class="text-on-surface font-headline font-bold">Maintenance</h4>
+<p class="text-on-surface-variant text-xs mt-1">Room 204 AC service due today.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] transition-all duration-300">
+<div class="flex justify-around items-center px-4 pt-3 pb-6 max-w-screen-2xl mx-auto">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-900 dark:text-blue-400 scale-110 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bed</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Tenants</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">More</span>
+</a>
+</div>
+</nav>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 z-40">
+<span class="material-symbols-outlined text-2xl">add_home</span>
+</button>
+</body></html>

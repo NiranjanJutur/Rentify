@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tenant Profile | Property Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dce1ff",
+                    "surface-container-high": "#e7e8ea",
+                    "on-tertiary-container": "#f39461",
+                    "surface-tint": "#4059aa",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#ffdbcb",
+                    "secondary-fixed-dim": "#4edea3",
+                    "inverse-primary": "#b6c4ff",
+                    "on-primary-container": "#90a8ff",
+                    "tertiary-container": "#6e2c00",
+                    "on-background": "#191c1e",
+                    "surface-dim": "#d9dadc",
+                    "surface": "#f8f9fb",
+                    "on-primary-fixed-variant": "#264191",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-surface-variant": "#444651",
+                    "on-secondary-fixed-variant": "#005236",
+                    "background": "#f8f9fb",
+                    "primary": "#00236f",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "inverse-surface": "#2e3132",
+                    "secondary-container": "#6cf8bb",
+                    "outline": "#757682",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#f8f9fb",
+                    "on-secondary": "#ffffff",
+                    "secondary": "#006c49",
+                    "surface-container-low": "#f3f4f6",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container": "#edeef0",
+                    "surface-container-highest": "#e1e2e4",
+                    "primary-container": "#1e3a8a",
+                    "surface-variant": "#e1e2e4",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#341100",
+                    "tertiary": "#4b1c00",
+                    "on-surface": "#191c1e",
+                    "inverse-on-surface": "#f0f1f3",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "on-secondary-container": "#00714d",
+                    "on-primary-fixed": "#00164e",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c5c5d3",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-slate-50 dark:bg-slate-900 w-full sticky top-0 z-50 transition-colors duration-300">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="tenant profile picture" class="w-full h-full object-cover" data-alt="close-up portrait of a professional man with a friendly expression in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4dX5jgPRADPtZOS8kurgh6oDGQzMBlBf1o2plDqFPkOFuex5qc08w-bSU51qE4PFFX1QziSEAUtq0Yk-CoujDy3PPX4f4w8sVRPwWDjH_vV6QXTkr5a98IRL52ex1buio7CJHPe-j34rvmx2M_-UPXD2r8RRWqWwxK3y1a709WI_JjUpCTinYFHdv2rYNODBfHyzJN0velkAIFI16UKcPllO00mqh-ItO9g_br4VuM0C3MVpttORIJN7s41AhQpHMPgZPzvpwarM"/>
+</div>
+<h1 class="text-xl font-extrabold tracking-tight text-blue-900 dark:text-blue-200 font-manrope">Property Curator</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-blue-900 dark:text-blue-400 transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-5xl mx-auto px-6 pt-8">
+<!-- User Profile Header -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+<div class="space-y-2">
+<span class="font-label text-[10px] font-bold tracking-[0.15em] uppercase text-secondary">Active Residency</span>
+<h2 class="font-headline text-4xl font-extrabold text-primary tracking-tight">Aditya Sharma</h2>
+<div class="flex items-center gap-2 text-on-surface-variant font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="apartment">apartment</span>
+<span class="font-body">Suite 304B • Premium Wing</span>
+</div>
+</div>
+<!-- KYC & Identity Status -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] border-l-4 border-secondary">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div>
+<p class="font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Identity Status</p>
+<p class="font-headline font-bold text-secondary text-lg">Verified Resident</p>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Room Details (Large Spanning Card) -->
+<div class="md:col-span-2 bg-primary-container text-on-primary-container p-8 rounded-full overflow-hidden relative min-h-[280px] flex flex-col justify-between">
+<!-- Abstract architectural pattern overlay -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div class="relative z-10">
+<h3 class="font-headline text-2xl font-bold mb-8">Financial Overview</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+<div>
+<p class="font-label text-[10px] uppercase tracking-[0.2em] opacity-70 mb-1">Monthly Rent</p>
+<p class="font-headline text-3xl font-extrabold">₹32,500</p>
+</div>
+<div>
+<p class="font-label text-[10px] uppercase tracking-[0.2em] opacity-70 mb-1">Security Deposit</p>
+<p class="font-headline text-3xl font-extrabold">₹65,000</p>
+</div>
+<div>
+<p class="font-label text-[10px] uppercase tracking-[0.2em] opacity-70 mb-1">Move-in Date</p>
+<p class="font-headline text-xl font-bold">12 Oct 2023</p>
+</div>
+</div>
+</div>
+<div class="relative z-10 pt-6 mt-6 border-t border-white/10 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed-dim" data-icon="calendar_month">calendar_month</span>
+<span class="text-sm font-medium">Next billing cycle: 01 April</span>
+</div>
+<button class="bg-surface-container-lowest text-primary px-6 py-2 rounded-full font-bold text-sm hover:bg-surface-bright transition-colors">
+                        View History
+                    </button>
+</div>
+</div>
+<!-- Emergency Contact Card -->
+<div class="bg-surface-container-low p-8 rounded-full flex flex-col justify-between border border-outline-variant/15">
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline text-lg font-bold">Emergency</h3>
+<span class="material-symbols-outlined text-primary/40" data-icon="contact_emergency">contact_emergency</span>
+</div>
+<div class="space-y-4">
+<div>
+<p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Primary Contact</p>
+<p class="font-headline font-bold text-xl">Rajesh Sharma</p>
+<p class="text-on-surface-variant text-sm">Father</p>
+</div>
+<div class="flex items-center gap-3 text-primary font-bold pt-2">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+<span class="font-body">+91 98765 43210</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 rounded-xl bg-surface-container-highest text-primary font-bold text-sm hover:bg-surface-container-high transition-colors">
+                    Update Contact
+                </button>
+</div>
+<!-- Documents Section -->
+<div class="md:col-span-2 space-y-4">
+<h3 class="font-headline text-xl font-bold px-2">Official Documents</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Doc 1 -->
+<div class="group bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary-fixed/30 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+</div>
+<div>
+<p class="font-headline font-bold">Identity Proof</p>
+<p class="text-xs text-on-surface-variant">Aadhaar Card • Verified</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</div>
+<!-- Doc 2 -->
+<div class="group bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary-fixed/30 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+</div>
+<div>
+<p class="font-headline font-bold">Rental Agreement</p>
+<p class="text-xs text-on-surface-variant">Expires Oct 2024</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</div>
+</div>
+</div>
+<!-- Settings/Preferences -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15">
+<h3 class="font-headline text-lg font-bold mb-4">App Settings</h3>
+<div class="space-y-1">
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xl" data-icon="settings_suggest">settings_suggest</span>
+<span class="font-medium text-sm">Preferences</span>
+</div>
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xl" data-icon="lock">lock</span>
+<span class="font-medium text-sm">Security</span>
+</div>
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</a>
+<div class="pt-4 mt-4 border-t border-outline-variant/15">
+<button class="flex items-center gap-3 p-3 w-full text-error font-bold rounded-lg hover:bg-error-container/20 transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="logout">logout</span>
+<span class="text-sm">Sign Out</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] border-t border-slate-100 dark:border-slate-800 rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-inter text-[10px] font-medium tracking-wide uppercase mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-inter text-[10px] font-medium tracking-wide uppercase mt-1">Notices</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-inter text-[10px] font-medium tracking-wide uppercase mt-1">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-blue-100/50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-2xl px-4 py-2 transition-transform duration-200 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-inter text-[10px] font-medium tracking-wide uppercase mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

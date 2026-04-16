@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rent Tracking &amp; Payments | The Curator</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#444651",
+                        "primary": "#00236f",
+                        "outline-variant": "#c5c5d3",
+                        "inverse-surface": "#2e3132",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#f8f9fb",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed": "#341100",
+                        "surface-variant": "#e1e2e4",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d9dadc",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container": "#edeef0",
+                        "tertiary-container": "#6e2c00",
+                        "surface-tint": "#4059aa",
+                        "on-primary-container": "#90a8ff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f0f1f3",
+                        "secondary-container": "#6cf8bb",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "inverse-primary": "#b6c4ff",
+                        "primary-fixed": "#dce1ff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#4b1c00",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-container-low": "#f3f4f6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary": "#006c49",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#f39461",
+                        "on-secondary-container": "#00714d",
+                        "outline": "#757682",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50 dark:bg-slate-900 transition-all duration-300 ease-in-out">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Property Manager Profile" class="w-full h-full object-cover" data-alt="Professional property manager portrait in a modern office setting, soft natural lighting, high-end corporate aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWM9IyEVWjHsgoxn9uPfenlLr6nx5rGtSBxxy8UyZJuatO8KI11amw8msHHhDBduTSHf7OGMh4rVnMk-2jjVAn_uAWrcH15Je-_eQnr0N0zAgqs9JZgq-9jCIObXMDtaP6sPdmOH2bmz4qMjJ60b_l3SSFj5G_pLwZh5N5L9yFIRod6kVi5tSbukl7pow-JS07EPFaIHfpSS9HBRUQWUrsL5wB4DmMLylEnfqQ2x-zlWsNZZ6ZF3QbFVz5huqdlYOceY00vHw2wpU"/>
+</div>
+<h1 class="font-headline font-bold tracking-tight text-xl text-blue-900 dark:text-blue-400 tracking-tighter">The Curator</h1>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-screen-2xl mx-auto">
+<!-- Monthly Revenue Summary: Bento Grid Style -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="md:col-span-2 p-6 rounded-xl bg-primary bg-gradient-to-br from-primary to-primary-container text-on-primary flex flex-col justify-between shadow-lg">
+<div>
+<span class="font-label text-xs uppercase tracking-widest opacity-80">Total Revenue - October</span>
+<h2 class="font-headline text-4xl font-extrabold mt-2 tracking-tight">$42,850.00</h2>
+</div>
+<div class="mt-8 flex items-center gap-2 text-secondary-fixed">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="font-label text-sm font-semibold">12% increase from last month</span>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-lowest border-none flex flex-col justify-between shadow-sm">
+<div>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Collection Rate</span>
+<h3 class="font-headline text-3xl font-bold mt-2 text-on-surface">94.2%</h3>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-4">
+<div class="bg-secondary h-full rounded-full" style="width: 94%"></div>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-lowest border-none flex flex-col justify-between shadow-sm">
+<div>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Pending Dues</span>
+<h3 class="font-headline text-3xl font-bold mt-2 text-error">$2,410.00</h3>
+</div>
+<p class="text-xs text-on-surface-variant mt-2">8 tenants outstanding</p>
+</div>
+</section>
+<!-- Search and Filters -->
+<section class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="relative flex-grow max-w-xl">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all font-body text-sm" placeholder="Search by tenant name, unit or phone..." type="text"/>
+</div>
+<div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+<button class="px-4 py-2 rounded-full bg-primary text-on-primary font-label text-sm font-medium whitespace-nowrap">All Status</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label text-sm font-medium whitespace-nowrap">Paid</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label text-sm font-medium whitespace-nowrap">Pending</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label text-sm font-medium whitespace-nowrap">Partial</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label text-sm font-medium whitespace-nowrap">Overdue</button>
+</div>
+</section>
+<!-- Main Content Area: Asymmetric Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Tenant Payment List -->
+<div class="lg:col-span-2 space-y-4">
+<h4 class="font-headline text-lg font-bold mb-4 text-on-surface">Recent Billings</h4>
+<!-- List Item 1: Overdue -->
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container overflow-hidden">
+<img alt="Julian Casablancas" class="w-full h-full object-cover" data-alt="Portrait of a young male tenant, casual modern look, neutral background, soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaP8zY3Xs8U57za3uhmSU_Zp95jsKT-grAqc7VglBt1D2UHYyMd0JQIBLbYSeq87QcPblGO9mQI9ceA7vgum2WdKoXbdgujQU_lYnP4fm_l9DrktuS9pb8Oo9Z2W0I1gLbsBBRbVKrKUZsrAgC1mvTQHQOOiZ6One9xZe4J3gYrFrTrZdBIv0RceZkOCCaXTc7rIevCcuyfX0c4iOxvpRdNkImYzXKIOgWQQLwO-AeCeV8N_uCG5T5toYe-6kxDnI2kQhu7rp_vw4"/>
+</div>
+<div>
+<h5 class="font-headline font-bold text-on-surface">Julian Casablancas</h5>
+<p class="text-xs text-on-surface-variant">Unit 402 • Deluxe Studio</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-headline font-bold text-lg text-error">$1,200.00</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-error-container text-on-error-container">Overdue 5 Days</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/10 flex items-center justify-between">
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="chat">chat</span>
+                                Send Reminder
+                            </button>
+<button class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="phone">phone</span>
+                                SMS
+                            </button>
+</div>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-bold shadow-sm hover:opacity-90 transition-opacity">Record Payment</button>
+</div>
+</div>
+<!-- List Item 2: Partial -->
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container overflow-hidden">
+<img alt="Sarah Connor" class="w-full h-full object-cover" data-alt="Portrait of a young professional female tenant, bright lighting, urban apartment vibe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp_pUTzfLrvpML1SUhfFkTiNnRRwz3IKxsUTcHS3KJMDaFRqAxCnN4KovM3wL2LQ9HhC8ghsM2KkRAc_hD6Str60SieWJZYBoZimtClZ30NXTMh2CGdVWgDs7yOyjRWzRLTSmeIgS1dVijJp3e-MLI2I6zl9Vu0ZkZwjVkjz1CPWqNn4HMSqFlZtveX0pGrFRPg5SB1T0iAhKrcFBqgO-WE49Fe286XA6DCTGyUt1kj9FTqFWDDMhz1pehbaM5CXjnJnyzAM4VaVg"/>
+</div>
+<div>
+<h5 class="font-headline font-bold text-on-surface">Sarah Connor</h5>
+<p class="text-xs text-on-surface-variant">Unit 108 • Shared Suite</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-headline font-bold text-lg text-on-surface">$450.00 <span class="text-xs text-on-surface-variant font-normal">of $900</span></span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-tertiary-fixed text-on-tertiary-fixed-variant">Partial Payment</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/10 flex items-center justify-between">
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="chat">chat</span>
+                                Send Reminder
+                            </button>
+</div>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-bold shadow-sm hover:opacity-90 transition-opacity">Record Balance</button>
+</div>
+</div>
+<!-- List Item 3: Paid -->
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group opacity-75">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container overflow-hidden">
+<img alt="Marcus Aurelius" class="w-full h-full object-cover" data-alt="Portrait of a mature male tenant, friendly expression, natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkAXAQUTr8jU2gXKdqlk9_aaegMob3SwlEKb__zN8XCeH7O5GKOrUmAi8Cn8Te_sA4P-tQq0ichj5JceKjf7c5EjrxAr0Z0D1NyxCJxelz_fjd2Ed1v2JXcJK71NwiFEkjOsBOq8Ikg_w3E1ifte6M1qnXba5aXFlCciDP2p2Zk1p0Aj15-4-mqGKAUnuwwjdvdpUswZnOLlkUXaUEuyx4eS2SV2TzTvtkuT1VJH6EvSO9o5BU4-J7_BO83P3WgFSgb6wnCRWrlUE"/>
+</div>
+<div>
+<h5 class="font-headline font-bold text-on-surface">Marcus Aurelius</h5>
+<p class="text-xs text-on-surface-variant">Unit 305 • Executive Suite</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-headline font-bold text-lg text-secondary">$1,500.00</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-secondary-fixed text-on-secondary-fixed-variant">Paid Full</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/10 flex items-center justify-between">
+<span class="text-xs text-on-surface-variant font-medium">Receipt #RCP-9921 generated</span>
+<button class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant text-xs font-bold hover:bg-surface-container transition-colors">View Receipt</button>
+</div>
+</div>
+</div>
+<!-- Mini Log & Details Panel -->
+<aside class="space-y-6">
+<div class="p-6 rounded-2xl bg-surface-container-low border-none">
+<h4 class="font-headline text-lg font-bold mb-6 text-on-surface">Payment History</h4>
+<div class="space-y-6 relative before:content-[''] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-px before:bg-outline-variant/30">
+<!-- History Entry 1 -->
+<div class="relative pl-8">
+<div class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-secondary ring-4 ring-surface-container-low"></div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase font-bold text-on-surface-variant">Today, 10:15 AM</span>
+<span class="font-body text-sm font-semibold text-on-surface">Marcus Aurelius</span>
+<span class="font-body text-xs text-on-surface-variant">Paid $1,500.00 via UPI</span>
+</div>
+</div>
+<!-- History Entry 2 -->
+<div class="relative pl-8">
+<div class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-tertiary-container ring-4 ring-surface-container-low"></div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase font-bold text-on-surface-variant">Oct 12, 04:30 PM</span>
+<span class="font-body text-sm font-semibold text-on-surface">Sarah Connor</span>
+<span class="font-body text-xs text-on-surface-variant">Paid $450.00 (Partial)</span>
+</div>
+</div>
+<!-- History Entry 3 -->
+<div class="relative pl-8">
+<div class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-error ring-4 ring-surface-container-low"></div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase font-bold text-on-surface-variant">Oct 10, 09:00 AM</span>
+<span class="font-body text-sm font-semibold text-on-surface">Julian Casablancas</span>
+<span class="font-body text-xs text-on-surface-variant">Rent Overdue Notification Sent</span>
+</div>
+</div>
+<!-- History Entry 4 -->
+<div class="relative pl-8">
+<div class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-secondary ring-4 ring-surface-container-low"></div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase font-bold text-on-surface-variant">Oct 05, 11:20 AM</span>
+<span class="font-body text-sm font-semibold text-on-surface">Anita Max Wynn</span>
+<span class="font-body text-xs text-on-surface-variant">Paid $1,100.00 via Cash</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 rounded-xl bg-surface-container-high text-primary font-bold text-xs hover:bg-surface-container-highest transition-colors">Download Report (CSV)</button>
+</div>
+<!-- Quick Actions Card -->
+<div class="p-6 rounded-2xl bg-secondary-container/20 border-none">
+<h4 class="font-headline text-sm font-bold mb-4 text-on-secondary-container">Collection Tasks</h4>
+<ul class="space-y-3">
+<li class="flex items-center gap-3 text-xs text-on-secondary-container/80">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+                            Verify 3 bank transfers
+                        </li>
+<li class="flex items-center gap-3 text-xs text-on-secondary-container/80">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+                            Approve 2 security deposits
+                        </li>
+</ul>
+</div>
+</aside>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] border-t border-slate-100/10">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="bed">bed</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Tenants</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-900 dark:text-blue-400 scale-110 transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-70 transition-transform duration-200 active:scale-95 hover:opacity-100" href="#">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wide uppercase mt-1">More</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Room &amp; Bed Inventory | The Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#444651",
+                        "primary": "#00236f",
+                        "outline-variant": "#c5c5d3",
+                        "inverse-surface": "#2e3132",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#f8f9fb",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed": "#341100",
+                        "surface-variant": "#e1e2e4",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d9dadc",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container": "#edeef0",
+                        "tertiary-container": "#6e2c00",
+                        "surface-tint": "#4059aa",
+                        "on-primary-container": "#90a8ff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f0f1f3",
+                        "secondary-container": "#6cf8bb",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "inverse-primary": "#b6c4ff",
+                        "primary-fixed": "#dce1ff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#4b1c00",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-container-low": "#f3f4f6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary": "#006c49",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#f39461",
+                        "on-secondary-container": "#00714d",
+                        "outline": "#757682",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant/10">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Property Manager Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB98R6DpFgQWBplRdR3cxpkY2kVIB-SJHdoswQpsfywfpjeY96CUaRM5lYRTayB03fA0OH1c3rM-Nc6IPv1DBmjqK0xWL98RZ_85WKEFDF6Hs58JTkGRJQ2NqL-J8FpvzOZApoXKNuwakeCLBZ7LvDFkTwb3fp9rtqqK5e0tEnX4aoAa05-fPgGNL7XW6XHu9Pxqib92QEYRkCMUZZVwWBFJnW0gFHVH0Hr5ExtZbQmz7g_fWDrJS9PvdZXkPdNfwtjpFb9btn_Gg"/>
+</div>
+<span class="text-xl font-bold text-primary tracking-tighter font-headline">The Curator</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-all text-on-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 px-4 max-w-screen-2xl mx-auto">
+<!-- Dashboard Summary Header -->
+<section class="flex flex-col gap-4 mb-8">
+<div>
+<h1 class="text-3xl font-extrabold tracking-tight text-primary mb-1">Inventory</h1>
+<p class="text-on-surface-variant text-sm font-medium">Real-time room availability &amp; allocation</p>
+</div>
+<div class="flex gap-4 items-center bg-surface-container-low p-4 rounded-3xl">
+<div class="flex-1">
+<span class="block text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Beds Total</span>
+<span class="text-2xl font-headline font-bold text-primary">124</span>
+</div>
+<div class="w-px h-8 bg-outline-variant/50"></div>
+<div class="flex-1">
+<span class="block text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">Available</span>
+<span class="text-2xl font-headline font-bold text-secondary">18</span>
+</div>
+<div class="w-px h-8 bg-outline-variant/50"></div>
+<div class="flex-1 text-right">
+<span class="block text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Occupancy</span>
+<span class="text-2xl font-headline font-bold text-primary">85%</span>
+</div>
+</div>
+</section>
+<!-- Floor Navigation: More Prominent -->
+<section class="mb-8 sticky top-16 z-40 bg-surface/95 backdrop-blur-sm -mx-4 px-4 py-2 border-b border-outline-variant/10">
+<div class="flex overflow-x-auto hide-scrollbar gap-2 py-2">
+<button class="flex-none px-8 py-3 rounded-2xl bg-primary text-on-primary font-bold text-sm shadow-lg shadow-primary/20 transition-all ring-2 ring-primary ring-offset-2 ring-offset-surface">Floor 1</button>
+<button class="flex-none px-8 py-3 rounded-2xl bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-all">Floor 2</button>
+<button class="flex-none px-8 py-3 rounded-2xl bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-all">Floor 3</button>
+<button class="flex-none px-8 py-3 rounded-2xl bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-all">Floor 4</button>
+<button class="flex-none px-8 py-3 rounded-2xl bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-all">Penthouse</button>
+</div>
+<div class="flex items-center gap-2 mt-2 px-1">
+<span class="material-symbols-outlined text-outline text-lg">filter_list</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Show all Wings</span>
+</div>
+</section>
+<!-- Room Grid -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Room Card: Single Occupancy -->
+<div class="bg-surface-container-lowest rounded-[2.5rem] p-6 shadow-sm border border-outline-variant/20">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING A</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 101</h3>
+<span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-primary-fixed text-on-primary-fixed rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">person</span> Single Occupancy
+                        </span>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Avatar" class="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB98R6DpFgQWBplRdR3cxpkY2kVIB-SJHdoswQpsfywfpjeY96CUaRM5lYRTayB03fA0OH1c3rM-Nc6IPv1DBmjqK0xWL98RZ_85WKEFDF6Hs58JTkGRJQ2NqL-J8FpvzOZApoXKNuwakeCLBZ7LvDFkTwb3fp9rtqqK5e0tEnX4aoAa05-fPgGNL7XW6XHu9Pxqib92QEYRkCMUZZVwWBFJnW0gFHVH0Hr5ExtZbQmz7g_fWDrJS9PvdZXkPdNfwtjpFb9btn_Gg"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-secondary border-2 border-white rounded-full"></span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-0.5">Bed 01</p>
+<p class="text-base font-bold text-primary">Arjun Sharma</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 bg-primary text-on-primary rounded-lg uppercase">Occupied</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-2xl hover:bg-primary hover:text-on-primary transition-all">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-2xl shadow-lg shadow-primary/10 transition-all">Quick View</button>
+</div>
+</div>
+<!-- Room Card: Double Sharing -->
+<div class="bg-surface-container-lowest rounded-[2.5rem] p-6 shadow-sm border border-outline-variant/20">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING A</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 102</h3>
+<span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-secondary-fixed text-on-secondary-fixed rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">group</span> Double Sharing
+                        </span>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<!-- Bed 1 Occupied -->
+<div class="flex items-center justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden ring-2 ring-primary/20">
+<img alt="Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB98R6DpFgQWBplRdR3cxpkY2kVIB-SJHdoswQpsfywfpjeY96CUaRM5lYRTayB03fA0OH1c3rM-Nc6IPv1DBmjqK0xWL98RZ_85WKEFDF6Hs58JTkGRJQ2NqL-J8FpvzOZApoXKNuwakeCLBZ7LvDFkTwb3fp9rtqqK5e0tEnX4aoAa05-fPgGNL7XW6XHu9Pxqib92QEYRkCMUZZVwWBFJnW0gFHVH0Hr5ExtZbQmz7g_fWDrJS9PvdZXkPdNfwtjpFb9btn_Gg"/>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-0.5">Bed A</p>
+<p class="text-base font-bold text-primary">Priya Nair</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 bg-primary text-on-primary rounded-lg uppercase">Occupied</span>
+</div>
+<!-- Bed 2 Vacant -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-outline">
+<span class="material-symbols-outlined">bed</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-outline uppercase mb-0.5">Bed B</p>
+<p class="text-base font-semibold text-outline-variant italic">Vacant</p>
+</div>
+</div>
+<button class="text-[10px] font-bold px-3 py-2 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-colors uppercase">Assign</button>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-2xl hover:bg-primary hover:text-on-primary transition-all">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-2xl shadow-lg shadow-primary/10 transition-all">Quick View</button>
+</div>
+</div>
+<!-- Room Card: Triple Sharing -->
+<div class="bg-surface-container-lowest rounded-[2.5rem] p-6 shadow-sm border border-outline-variant/20">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING B</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 103</h3>
+<span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-tertiary-fixed text-on-tertiary-fixed rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">groups</span> Triple Sharing
+                        </span>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="grid grid-cols-1 gap-2">
+<!-- Bed 1 Reserved -->
+<div class="flex items-center justify-between p-3 bg-tertiary/5 rounded-2xl border border-tertiary/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-tertiary-fixed-variant uppercase mb-0.5">Bed A</p>
+<p class="text-sm font-bold text-tertiary">Reserved: R. Mehta</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 bg-tertiary-container text-on-tertiary-container rounded-lg uppercase">Reserved</span>
+</div>
+<!-- Bed 2 Occupied -->
+<div class="flex items-center justify-between p-3 bg-primary/5 rounded-2xl border border-primary/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-0.5">Bed B</p>
+<p class="text-sm font-bold text-primary">Rahul K.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+</div>
+<!-- Bed 3 Occupied -->
+<div class="flex items-center justify-between p-3 bg-primary/5 rounded-2xl border border-primary/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-0.5">Bed C</p>
+<p class="text-sm font-bold text-primary">Vikram S.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-2xl">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-2xl shadow-lg">Quick View</button>
+</div>
+</div>
+<!-- Room Card: Four Sharing -->
+<div class="bg-surface-container-lowest rounded-[2.5rem] p-6 shadow-sm border border-outline-variant/20">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] text-on-surface-variant uppercase mb-1 block">WING B</span>
+<h3 class="text-2xl font-bold font-headline text-primary">Room 104</h3>
+<span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-surface-container-highest text-on-surface rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">groups_3</span> Four Sharing
+                        </span>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-outline">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<!-- Bed 1 -->
+<div class="p-3 bg-primary/5 rounded-2xl border border-primary/10">
+<div class="flex flex-col gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1">person</span>
+</div>
+<div>
+<p class="text-[8px] font-bold text-on-surface-variant uppercase">Bed A</p>
+<p class="text-xs font-bold text-primary truncate">S. Verma</p>
+</div>
+</div>
+</div>
+<!-- Bed 2 -->
+<div class="p-3 bg-primary/5 rounded-2xl border border-primary/10">
+<div class="flex flex-col gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1">person</span>
+</div>
+<div>
+<p class="text-[8px] font-bold text-on-surface-variant uppercase">Bed B</p>
+<p class="text-xs font-bold text-primary truncate">J. Doe</p>
+</div>
+</div>
+</div>
+<!-- Bed 3 -->
+<div class="p-3 bg-surface-container-low border border-outline-variant/20 rounded-2xl">
+<div class="flex flex-col gap-2 opacity-50">
+<div class="w-8 h-8 rounded-full bg-outline-variant/30 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-sm">bed</span>
+</div>
+<div>
+<p class="text-[8px] font-bold text-on-surface-variant uppercase">Bed C</p>
+<p class="text-xs font-bold text-on-surface truncate">Vacant</p>
+</div>
+</div>
+</div>
+<!-- Bed 4 -->
+<div class="p-3 bg-surface-container-low border border-outline-variant/20 rounded-2xl">
+<div class="flex flex-col gap-2 opacity-50">
+<div class="w-8 h-8 rounded-full bg-outline-variant/30 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-sm">bed</span>
+</div>
+<div>
+<p class="text-[8px] font-bold text-on-surface-variant uppercase">Bed D</p>
+<p class="text-xs font-bold text-on-surface truncate">Vacant</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 text-sm font-bold bg-surface-container-high text-primary rounded-2xl">Transfer</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-on-primary rounded-2xl shadow-lg">Quick View</button>
+</div>
+</div>
+</div>
+<!-- Footer Note -->
+<div class="mt-8 mb-4 text-center">
+<p class="text-xs text-on-surface-variant font-medium opacity-60">Showing 1-12 of 124 units on Floor 1</p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-[2.5rem] bg-white/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.08)] border-t border-outline-variant/10 transition-all">
+<div class="flex justify-around items-center px-6 pt-4 pb-8 max-w-screen-2xl mx-auto">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 transition-all hover:opacity-100" href="#">
+<span class="material-symbols-outlined text-2xl">dashboard</span>
+<span class="text-[10px] font-bold tracking-wider uppercase mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary transition-all relative" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bed</span>
+<span class="text-[10px] font-bold tracking-wider uppercase mt-1">Inventory</span>
+<div class="absolute -top-1 right-0 w-1.5 h-1.5 bg-error rounded-full"></div>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 transition-all hover:opacity-100" href="#">
+<span class="material-symbols-outlined text-2xl">group</span>
+<span class="text-[10px] font-bold tracking-wider uppercase mt-1">Tenants</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 transition-all hover:opacity-100" href="#">
+<span class="material-symbols-outlined text-2xl">payments</span>
+<span class="text-[10px] font-bold tracking-wider uppercase mt-1">Bills</span>
+</a>
+</div>
+</nav>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-28 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-2xl flex items-center justify-center transition-all active:scale-90 hover:shadow-primary/40 z-40">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+</body></html>

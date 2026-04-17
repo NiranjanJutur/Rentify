@@ -1,48 +1,64 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
-interface Payment {
-  id: string;
-  tenant: string;
-  room: string;
-  amount: string;
-  status: 'occupied' | 'pending' | 'vacant';
-  statusLabel: string;
-  dueDate: string;
-  method: string;
-  icon: keyof typeof Ionicons.glyphMap;
-}
-
-const recentPayments: Payment[] = [
-  { id: '#PAY-4210', tenant: 'Aakash Mehta', room: 'A-201', amount: '₹12,500', status: 'vacant', statusLabel: 'Paid', dueDate: 'Oct 5', method: 'UPI', icon: 'phone-portrait-outline' },
-  { id: '#PAY-4209', tenant: 'Priyanka Sharma', room: 'A-302', amount: '₹14,000', status: 'vacant', statusLabel: 'Paid', dueDate: 'Oct 5', method: 'Bank Transfer', icon: 'business-outline' },
-  { id: '#PAY-4208', tenant: 'Deepika Patel', room: 'C-303', amount: '₹13,500', status: 'vacant', statusLabel: 'Paid', dueDate: 'Oct 5', method: 'UPI', icon: 'phone-portrait-outline' },
-  { id: '#PAY-4207', tenant: 'Vikram Singh', room: 'C-104', amount: '₹10,000', status: 'vacant', statusLabel: 'Paid', dueDate: 'Oct 3', method: 'Cash', icon: 'cash-outline' },
-];
-
-const pendingPayments: Payment[] = [
-  { id: '#PAY-4211', tenant: 'Rohit Kumar', room: 'B-105', amount: '₹9,500', status: 'pending', statusLabel: 'Overdue', dueDate: 'Oct 5', method: '—', icon: 'alert-circle-outline' },
-  { id: '#PAY-4212', tenant: 'Sneha Reddy', room: 'B-208', amount: '₹11,000', status: 'pending', statusLabel: 'Due Today', dueDate: 'Oct 14', method: '—', icon: 'time-outline' },
-];
+import { paymentService } from '../../services/dataService';
 
 export const PaymentCollectionScreen = () => {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<'overview' | 'pending' | 'received'>('overview');
+  const [payments, setPayments] = useState<any[]>([]);
+  const [summary, setSummary] = useState({ collected: 0, pending: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const totalCollected = 50000;
-  const totalPending = 20500;
-  const totalExpected = 70500;
-  const collectionRate = Math.round((totalCollected / totalExpected) * 100);
+  const fetchPayments = useCallback(async () => {
+    try {
+      const data = await paymentService.getAll();
+      const summaryData = await paymentService.getSummary('a0000000-0000-0000-0000-000000000001'); // Using default demo property ID
+      setPayments(data || []);
+      setSummary(summaryData);
+    } catch (err) {
+      console.log('Payments fetch error:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPayments();
+  }, [fetchPayments]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchPayments();
+  };
+
+  const pendingPayments = payments.filter(p => p.status === 'pending');
+  const recentPayments = payments.filter(p => p.status === 'paid');
+
+  const collectionRate = summary.total > 0 ? Math.round((summary.collected / summary.total) * 100) : 0;
+
+  if (loading) {
+    return (
+      <View style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
@@ -59,12 +75,12 @@ export const PaymentCollectionScreen = () => {
 
         {/* Revenue Hero Card */}
         <TonalCard level="low" style={[styles.heroCard, { backgroundColor: theme.colors.primary }]} floating={false}>
-          <Text style={styles.heroLabel}>OCTOBER 2026 REVENUE</Text>
-          <Text style={styles.heroAmount}>₹{totalCollected.toLocaleString('en-IN')}</Text>
+          <Text style={styles.heroLabel}>OVERALL REVENUE</Text>
+          <Text style={styles.heroAmount}>₹{summary.collected.toLocaleString('en-IN')}</Text>
           <View style={styles.heroSubRow}>
             <View style={styles.heroTrend}>
               <Ionicons name="trending-up" size={16} color={theme.colors.vacantBg} />
-              <Text style={styles.heroTrendText}>+8.2% vs last month</Text>
+              <Text style={styles.heroTrendText}>Live Collection Data</Text>
             </View>
           </View>
 
@@ -81,11 +97,11 @@ export const PaymentCollectionScreen = () => {
 
           <View style={styles.heroStatsRow}>
             <View style={styles.heroStat}>
-              <Text style={styles.heroStatValue}>₹{totalCollected.toLocaleString('en-IN')}</Text>
+              <Text style={styles.heroStatValue}>₹{summary.collected.toLocaleString('en-IN')}</Text>
               <Text style={styles.heroStatLabel}>Collected</Text>
             </View>
             <View style={styles.heroStat}>
-              <Text style={[styles.heroStatValue, { color: theme.colors.pendingBg }]}>₹{totalPending.toLocaleString('en-IN')}</Text>
+              <Text style={[styles.heroStatValue, { color: theme.colors.pendingBg }]}>₹{summary.pending.toLocaleString('en-IN')}</Text>
               <Text style={styles.heroStatLabel}>Pending</Text>
             </View>
           </View>
@@ -120,15 +136,15 @@ export const PaymentCollectionScreen = () => {
               <TonalCard key={payment.id} level="lowest" style={styles.paymentCard}>
                 <View style={styles.paymentRow}>
                   <View style={[styles.paymentIcon, { backgroundColor: theme.colors.pendingBg }]}>
-                    <Ionicons name={payment.icon} size={20} color={theme.colors.pendingText} />
+                    <Ionicons name="time-outline" size={20} color={theme.colors.pendingText} />
                   </View>
                   <View style={styles.paymentInfo}>
-                    <Text style={styles.paymentTenant}>{payment.tenant}</Text>
-                    <Text style={styles.paymentRoom}>{payment.room} • Due: {payment.dueDate}</Text>
+                    <Text style={styles.paymentTenant}>{payment.tenants?.name || 'Unknown'}</Text>
+                    <Text style={styles.paymentRoom}>{payment.tenants?.room || '—'} • Due: {new Date(payment.due_date).toLocaleDateString()}</Text>
                   </View>
                   <View style={styles.paymentRight}>
-                    <Text style={styles.paymentAmount}>{payment.amount}</Text>
-                    <StatusBadge status={payment.status} label={payment.statusLabel} />
+                    <Text style={styles.paymentAmount}>₹{payment.amount.toLocaleString()}</Text>
+                    <StatusBadge status="pending" label="Overdue" />
                   </View>
                 </View>
                 <View style={styles.paymentActions}>
@@ -161,15 +177,15 @@ export const PaymentCollectionScreen = () => {
               {recentPayments.map((payment, index) => (
                 <View key={payment.id} style={[styles.ledgerItem, index > 0 && styles.ledgerBorder]}>
                   <View style={[styles.paymentIconSmall, { backgroundColor: theme.colors.vacantBg }]}>
-                    <Ionicons name={payment.icon} size={16} color={theme.colors.vacantText} />
+                    <Ionicons name="checkmark-circle-outline" size={16} color={theme.colors.vacantText} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.ledgerTenant}>{payment.tenant}</Text>
-                    <Text style={styles.ledgerSub}>{payment.id} • {payment.room} • {payment.method}</Text>
+                    <Text style={styles.ledgerTenant}>{payment.tenants?.name || 'Unknown'}</Text>
+                    <Text style={styles.ledgerSub}>{payment.id.slice(0, 8)} • {payment.tenants?.room} • {payment.method}</Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.ledgerAmount}>{payment.amount}</Text>
-                    <Text style={styles.ledgerDate}>{payment.dueDate}</Text>
+                    <Text style={styles.ledgerAmount}>₹{payment.amount.toLocaleString()}</Text>
+                    <Text style={styles.ledgerDate}>{new Date(payment.paid_date).toLocaleDateString()}</Text>
                   </View>
                 </View>
               ))}

@@ -10,6 +10,10 @@ import { NoticesScreen } from '../screens/owner/NoticesScreen';
 import { MaintenanceComplaintsScreen } from '../screens/owner/MaintenanceComplaintsScreen';
 import { TenantManagementScreen } from '../screens/owner/TenantManagementScreen';
 import { PaymentCollectionScreen } from '../screens/owner/PaymentCollectionScreen';
+import TenantDashboardScreen from '../screens/tenant/TenantDashboardScreen';
+import TenantMealScreen from '../screens/tenant/TenantMealScreen';
+import TenantPaymentScreen from '../screens/tenant/TenantPaymentScreen';
+import TenantProfileScreen from '../screens/tenant/TenantProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +33,10 @@ export const AppNavigator = () => {
         <Stack.Screen name="MaintenanceComplaints" component={MaintenanceComplaintsScreen} />
         <Stack.Screen name="TenantManagement" component={TenantManagementScreen} />
         <Stack.Screen name="PaymentCollection" component={PaymentCollectionScreen} />
+        <Stack.Screen name="TenantDashboard" component={TenantDashboardScreen} />
+        <Stack.Screen name="TenantMeal" component={TenantMealScreen} />
+        <Stack.Screen name="TenantPayment" component={TenantPaymentScreen} />
+        <Stack.Screen name="TenantProfile" component={TenantProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

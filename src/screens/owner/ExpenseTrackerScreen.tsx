@@ -1,41 +1,107 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { expenseService } from '../../services/dataService';
 
 export const ExpenseTrackerScreen = () => {
-  return (
+  const navigation = useNavigation<any>();
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [summary, setSummary] = useState({ income: 0, expense: 0, net: 0 });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pettyAmount, setPettyAmount] = useState('');
+
+  const fetchFinancials = useCallback(async () => {
+    try {
+      const data = await expenseService.getAll();
+      const sum = await expenseService.getSummary('a0000000-0000-0000-0000-000000000001'); // Demo property
+      setExpenses(data || []);
+      setSummary(sum);
+    } catch (err) {
+      console.log('Expense fetch error:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFinancials();
+  }, [fetchFinancials]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchFinancials();
+  };
+
+  const handleRecordExpense = async () => {
+    if (!pettyAmount) return;
+    try {
+      // Mock category selection for now
+      await expenseService.create({
+        property_id: 'a0000000-0000-0000-0000-000000000001',
+        title: 'Petty Cash - Cleaning Supplies',
+        category: 'Cleaning Supplies',
+        amount: parseFloat(pettyAmount),
+        date: new Date().toISOString().split('T')[0],
+        status: 'verified'
+      });
+      setPettyAmount('');
+      fetchFinancials();
+    } catch (err) {
+      console.log('Record expense error:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.header}>
-          <Text style={styles.title}>Expense Tracker</Text>
-          <TouchableOpacity style={styles.notificationBtn}>
-            <Ionicons name="notifications-outline" size={24} color={theme.colors.onSurfaceVariant} />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={22} color={theme.colors.onSurface} />
           </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>Expense Tracker</Text>
+            <Text style={styles.subtitle}>FINANCIAL MANAGEMENT</Text>
+          </View>
         </View>
 
         {/* Financial Overview Hero */}
         <TonalCard level="lowest" style={styles.heroCard}>
           <View>
-            <Text style={styles.overviewLabel}>FINANCIAL OVERVIEW • OCT 2026</Text>
-            <Text style={styles.heroAmount}>₹1,14,240.00</Text>
+            <Text style={styles.overviewLabel}>FINANCIAL OVERVIEW • TOTAL</Text>
+            <Text style={styles.heroAmount}>₹{summary.net.toLocaleString('en-IN')}</Text>
             <View style={styles.profitBadge}>
-              <Ionicons name="trending-up" size={14} color={theme.colors.secondary} />
-              <Text style={styles.profitText}>Net Profit this month</Text>
+              <Ionicons name={summary.net >= 0 ? "trending-up" : "trending-down"} size={14} color={summary.net >= 0 ? theme.colors.secondary : '#ba1a1a'} />
+              <Text style={[styles.profitText, { color: summary.net >= 0 ? theme.colors.secondary : '#ba1a1a' }]}>
+                {summary.net >= 0 ? 'Net Profit' : 'Net Deficit'}
+              </Text>
             </View>
           </View>
 
           <View style={styles.heroStatsGrid}>
             <View style={styles.statBlock}>
               <Text style={styles.statLabel}>TOTAL INCOME</Text>
-              <Text style={styles.statValue}>₹1,48,500</Text>
+              <Text style={styles.statValue}>₹{summary.income.toLocaleString('en-IN')}</Text>
             </View>
             <View style={styles.statBlock}>
               <Text style={styles.statLabel}>TOTAL EXPENSES</Text>
-              <Text style={[styles.statValue, { color: '#ba1a1a' }]}>₹34,260</Text>
+              <Text style={[styles.statValue, { color: '#ba1a1a' }]}>₹{summary.expense.toLocaleString('en-IN')}</Text>
             </View>
           </View>
         </TonalCard>
@@ -55,70 +121,31 @@ export const ExpenseTrackerScreen = () => {
               <TextInput
                 style={styles.textInput}
                 placeholder="0.00"
-                placeholderTextColor={theme.colors.onSurfaceVariant + '80'}
+                placeholderTextColor={theme.colors.onPrimary + '80'}
                 keyboardType="numeric"
+                value={pettyAmount}
+                onChangeText={setPettyAmount}
               />
             </View>
           </View>
 
-          <RentifyButton title="Record Expense" onPress={() => { }} style={styles.recordBtn} />
+          <RentifyButton title="Record Expense" onPress={handleRecordExpense} style={styles.recordBtn} />
         </TonalCard>
-
-        {/* Recurring Bills */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recurring Bills</Text>
-          <TouchableOpacity>
-            <Text style={styles.viewAllText}>View History</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.billsList}>
-          <TonalCard level="lowest" style={styles.billItem}>
-            <View style={styles.billIconContainer}>
-              <Ionicons name="flash" size={24} color={theme.colors.primary} />
-            </View>
-            <View style={styles.billInfo}>
-              <Text style={styles.billName}>Electricity Bill - Tower A</Text>
-              <Text style={styles.billDue}>Due in 4 days • Oct 15, 2026</Text>
-            </View>
-            <View style={styles.billAction}>
-              <Text style={styles.billAmount}>₹8,420</Text>
-              <StatusBadge status="pending" label="Pending" />
-            </View>
-          </TonalCard>
-
-          <TonalCard level="lowest" style={styles.billItem}>
-            <View style={[styles.billIconContainer, { backgroundColor: theme.colors.vacantBg }]}>
-              <Ionicons name="water" size={24} color={theme.colors.secondary} />
-            </View>
-            <View style={styles.billInfo}>
-              <Text style={styles.billName}>Water Supply - Municipal</Text>
-              <Text style={styles.billDue}>Paid on Oct 02, 2026</Text>
-            </View>
-            <View style={styles.billAction}>
-              <Text style={styles.billAmount}>₹1,200</Text>
-              <StatusBadge status="vacant" label="Verified" />
-            </View>
-          </TonalCard>
-        </View>
 
         {/* Recent Ledger */}
         <Text style={styles.sectionTitle}>Recent Ledger</Text>
         <TonalCard level="lowest" style={styles.ledgerCard}>
-          {[
-            { id: '#TXN-89210', date: '11 Oct', entity: 'Acme Elevators Ltd.', cat: 'Maintenance', amount: '-₹4,500', isLoss: true },
-            { id: '#TXN-89209', date: '11 Oct', entity: 'Rent Payment - 402', cat: 'Income', amount: '+₹12,500', isLoss: false },
-          ].map((item, index) => (
-            <View key={index} style={[styles.ledgerItem, index !== 0 && styles.ledgerBorder]}>
+          {expenses.map((item, index) => (
+            <View key={item.id} style={[styles.ledgerItem, index !== 0 && styles.ledgerBorder]}>
               <View style={styles.ledgerInfo}>
-                <Text style={styles.ledgerEntity}>{item.entity}</Text>
-                <Text style={styles.ledgerSubText}>{item.id} • {item.date}</Text>
+                <Text style={styles.ledgerEntity}>{item.title}</Text>
+                <Text style={styles.ledgerSubText}>{item.id.slice(0, 8)} • {new Date(item.date).toLocaleDateString()}</Text>
               </View>
               <View style={styles.ledgerAction}>
-                <Text style={[styles.ledgerAmount, { color: item.isLoss ? '#ba1a1a' : theme.colors.secondary }]}>
-                  {item.amount}
+                <Text style={[styles.ledgerAmount, { color: item.amount < 0 ? '#ba1a1a' : theme.colors.secondary }]}>
+                  {item.amount < 0 ? '-' : '+'}₹{Math.abs(item.amount).toLocaleString()}
                 </Text>
-                <Text style={styles.ledgerCat}>{item.cat}</Text>
+                <Text style={styles.ledgerCat}>{item.category}</Text>
               </View>
             </View>
           ))}

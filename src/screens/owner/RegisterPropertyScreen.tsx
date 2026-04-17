@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { propertyService } from '../../services/dataService';
 
 const propertyTypes = ['PG / Hostel', 'Apartment', 'Co-Living', 'Villa', 'Dormitory'];
 const amenities = [
@@ -25,6 +26,7 @@ export const RegisterPropertyScreen = () => {
   const [address, setAddress] = useState('');
   const [totalRooms, setTotalRooms] = useState('');
   const [baseRent, setBaseRent] = useState('');
+  const [loading, setLoading] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState(
     amenities.map(a => a.selected)
   );
@@ -33,6 +35,31 @@ export const RegisterPropertyScreen = () => {
     const updated = [...selectedAmenities];
     updated[index] = !updated[index];
     setSelectedAmenities(updated);
+  };
+
+  const handleRegister = async () => {
+    if (!propertyName || !address || !totalRooms || !baseRent) {
+      Alert.alert('Missing Info', 'Please fill all details.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await propertyService.create({
+        name: propertyName,
+        address: address,
+        property_type: propertyTypes[selectedType],
+        total_rooms: parseInt(totalRooms),
+        base_rent: parseFloat(baseRent),
+        amenities: amenities.filter((_, i) => selectedAmenities[i]).map(a => a.name)
+      });
+      Alert.alert('Success', 'Property registered successfully!');
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert('Error', 'Failed to register property.');
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -167,7 +194,12 @@ export const RegisterPropertyScreen = () => {
         </TouchableOpacity>
 
         {/* Submit */}
-        <RentifyButton title="Register Property" onPress={() => {}} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl }} />
+        <RentifyButton 
+          title={loading ? "Registering..." : "Register Property"} 
+          onPress={handleRegister} 
+          disabled={loading}
+          style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl }} 
+        />
         <RentifyButton title="Save as Draft" onPress={() => {}} variant="glass" style={{ marginBottom: 40 }} />
       </ScrollView>
     </SafeAreaView>

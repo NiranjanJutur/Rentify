@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { theme } from '../../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { propertyService, tenantService, paymentService, expenseService, staffService, complaintService } from '../../services/dataService';
 
 const quickActions = [
   { name: 'Tenants', icon: 'people-outline' as const, route: 'TenantManagement', color: theme.colors.primary },
@@ -17,13 +18,86 @@ const quickActions = [
 
 export const OwnerDashboardScreen = () => {
   const navigation = useNavigation<any>();
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [metrics, setMetrics] = useState({
+    properties: 0,
+    tenants: 0,
+    occupied: 0,
+    vacant: 0,
+    collected: 0,
+    expected: 0,
+    pending: 0,
+    expenses: 0,
+    profit: 0,
+    openComplaints: 0,
+    staffOnline: '0/0'
+  });
+
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const demoPropId = 'a0000000-0000-0000-0000-000000000001';
+      const [props, tenants, paySum, expSum, staff, complaints] = await Promise.all([
+        propertyService.getAll(),
+        tenantService.getAll(demoPropId),
+        paymentService.getSummary(demoPropId),
+        expenseService.getSummary(demoPropId),
+        staffService.getAll(demoPropId),
+        complaintService.getAll(demoPropId)
+      ]);
+
+      const occupied = tenants?.filter((t: any) => t.status === 'occupied').length || 0;
+      const staffOnline = staff?.filter((s: any) => s.status === 'occupied').length || 0;
+
+      setMetrics({
+        properties: props?.length || 0,
+        tenants: tenants?.length || 0,
+        occupied,
+        vacant: (tenants?.length || 0) - occupied,
+        collected: paySum.collected,
+        expected: paySum.total,
+        pending: paySum.pending,
+        expenses: expSum.totalExpenses,
+        profit: paySum.collected - expSum.totalExpenses,
+        openComplaints: complaints?.filter((c: any) => c.status === 'open').length || 0,
+        staffOnline: `${staffOnline}/${staff?.length || 0}`
+      });
+    } catch (err) {
+      console.log('Dashboard fetch error:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMetrics();
+  }, [fetchMetrics]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchMetrics();
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Estate Overview</Text>
-            <Text style={styles.subtitle}>Monitoring 12 Properties • 148 Tenants</Text>
+            <Text style={styles.subtitle}>Monitoring {metrics.properties} Properties • {metrics.tenants} Tenants</Text>
           </View>
           <TouchableOpacity style={styles.profileBtn}>
             <Ionicons name="person-circle-outline" size={36} color={theme.colors.primary} />
@@ -35,11 +109,11 @@ export const OwnerDashboardScreen = () => {
           <Text style={styles.sectionTitleSmall}>Occupancy</Text>
           <View style={styles.row}>
             <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>136</Text>
+              <Text style={styles.metricValueLarge}>{metrics.occupied}</Text>
               <Text style={styles.metricLabelSmall}>Occupied</Text>
             </View>
             <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>12</Text>
+              <Text style={styles.metricValueLarge}>{metrics.vacant}</Text>
               <Text style={styles.metricLabelSmall}>Vacant</Text>
             </View>
           </View>
@@ -47,26 +121,26 @@ export const OwnerDashboardScreen = () => {
 
         {/* Financial Metrics */}
         <View style={[styles.card, styles.primaryCard]}>
-          <Text style={styles.cardHeroValue}>₹4,28,400</Text>
+          <Text style={styles.cardHeroValue}>₹{metrics.collected.toLocaleString('en-IN')}</Text>
           <Text style={styles.cardHeroLabel}>Rent Collected</Text>
           <View style={styles.financeRow}>
              <View style={styles.metricBlock}>
-               <Text style={styles.financeVal}>₹5,12,000</Text>
-               <Text style={styles.financeLbl}>Expected</Text>
+                <Text style={styles.financeVal}>₹{metrics.expected.toLocaleString('en-IN')}</Text>
+                <Text style={styles.financeLbl}>Expected</Text>
              </View>
              <View style={styles.metricBlock}>
-               <Text style={styles.financeVal}>₹83,600</Text>
-               <Text style={styles.financeLbl}>Pending</Text>
+                <Text style={styles.financeVal}>₹{metrics.pending.toLocaleString('en-IN')}</Text>
+                <Text style={styles.financeLbl}>Pending</Text>
              </View>
           </View>
           <View style={styles.financeRow}>
              <View style={styles.metricBlock}>
-               <Text style={styles.financeVal}>₹3,80,000</Text>
-               <Text style={styles.financeLbl}>Operating Cost</Text>
+                <Text style={styles.financeVal}>₹{metrics.expenses.toLocaleString('en-IN')}</Text>
+                <Text style={styles.financeLbl}>Expenses</Text>
              </View>
              <View style={styles.metricBlock}>
-               <Text style={styles.financeVal}>₹1,32,000</Text>
-               <Text style={styles.financeLbl}>Net Profit</Text>
+                <Text style={styles.financeVal}>₹{metrics.profit.toLocaleString('en-IN')}</Text>
+                <Text style={styles.financeLbl}>Net Cashflow</Text>
              </View>
           </View>
         </View>
@@ -94,11 +168,11 @@ export const OwnerDashboardScreen = () => {
           <Text style={styles.sectionTitleSmall}>Operational Pulse</Text>
           <View style={styles.row}>
             <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>08</Text>
+              <Text style={styles.metricValueLarge}>{metrics.openComplaints}</Text>
               <Text style={styles.metricLabelSmall}>Open Complaints</Text>
             </View>
             <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>14/16</Text>
+              <Text style={styles.metricValueLarge}>{metrics.staffOnline}</Text>
               <Text style={styles.metricLabelSmall}>Staff Clocked-in</Text>
             </View>
           </View>

@@ -8,17 +8,24 @@ interface RentifyButtonProps {
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'glass';
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
 }
 
 export const RentifyButton: React.FC<RentifyButtonProps> = ({ 
   title, 
   onPress, 
   variant = 'primary', 
-  style 
+  style,
+  disabled = false
 }) => {
   if (variant === 'primary') {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={[styles.container, style]}>
+      <TouchableOpacity 
+        onPress={onPress} 
+        activeOpacity={0.8} 
+        disabled={disabled}
+        style={[styles.container, style, disabled && { opacity: 0.6 }]}
+      >
         <LinearGradient
           colors={[theme.colors.primary, theme.colors.primaryContainer]}
           start={{ x: 0, y: 0 }}
@@ -37,9 +44,11 @@ export const RentifyButton: React.FC<RentifyButtonProps> = ({
     <TouchableOpacity 
       onPress={onPress} 
       activeOpacity={0.7} 
+      disabled={disabled}
       style={[
         styles.secondaryContainer, 
         isGlass && styles.glassContainer,
+        disabled && { opacity: 0.6 },
         style
       ]}
     >

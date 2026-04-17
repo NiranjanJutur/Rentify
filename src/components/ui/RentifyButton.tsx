@@ -3,14 +3,14 @@ import { TouchableOpacity, Text, StyleSheet, ViewStyle, StyleProp } from 'react-
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '../../theme/theme';
 
-interface CuratorButtonProps {
+interface RentifyButtonProps {
   title: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'glass';
   style?: StyleProp<ViewStyle>;
 }
 
-export const CuratorButton: React.FC<CuratorButtonProps> = ({ 
+export const RentifyButton: React.FC<RentifyButtonProps> = ({ 
   title, 
   onPress, 
   variant = 'primary', 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
-import { CuratorButton } from '../../components/ui/CuratorButton';
+import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -167,8 +167,8 @@ export const RegisterPropertyScreen = () => {
         </TouchableOpacity>
 
         {/* Submit */}
-        <CuratorButton title="Register Property" onPress={() => {}} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl }} />
-        <CuratorButton title="Save as Draft" onPress={() => {}} variant="glass" style={{ marginBottom: 40 }} />
+        <RentifyButton title="Register Property" onPress={() => {}} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl }} />
+        <RentifyButton title="Save as Draft" onPress={() => {}} variant="glass" style={{ marginBottom: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );

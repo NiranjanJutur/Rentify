@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } fr
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { CuratorButton } from '../../components/ui/CuratorButton';
+import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -194,7 +194,7 @@ export const PaymentCollectionScreen = () => {
         </View>
 
         {/* Send Reminder CTA */}
-        <CuratorButton title="Send Bulk Reminder" onPress={() => {}} style={{ marginTop: theme.spacing.lg, marginBottom: 40 }} />
+        <RentifyButton title="Send Bulk Reminder" onPress={() => {}} style={{ marginTop: theme.spacing.lg, marginBottom: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );

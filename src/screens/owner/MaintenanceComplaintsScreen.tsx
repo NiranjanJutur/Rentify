@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Tex
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { CuratorButton } from '../../components/ui/CuratorButton';
+import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { complaintService } from '../../services/dataService';
@@ -193,7 +193,7 @@ export const MaintenanceComplaintsScreen = () => {
         </View>
 
         {/* Log New Complaint */}
-        <CuratorButton title="Log New Complaint" onPress={() => {}} style={{ marginBottom: 40 }} />
+        <RentifyButton title="Log New Complaint" onPress={() => {}} style={{ marginBottom: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );

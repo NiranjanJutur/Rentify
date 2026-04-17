@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Act
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { CuratorButton } from '../../components/ui/CuratorButton';
+import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { noticeService } from '../../services/dataService';
@@ -182,7 +182,7 @@ export const NoticesScreen = () => {
         ))}
 
         {/* Create Notice CTA */}
-        <CuratorButton title="Create New Notice" onPress={() => {}} style={{ marginTop: theme.spacing.md, marginBottom: 40 }} />
+        <RentifyButton title="Create New Notice" onPress={() => {}} style={{ marginTop: theme.spacing.md, marginBottom: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );

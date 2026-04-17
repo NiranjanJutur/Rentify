@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Tex
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { CuratorButton } from '../../components/ui/CuratorButton';
+import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 
 export const ExpenseTrackerScreen = () => {
@@ -61,7 +61,7 @@ export const ExpenseTrackerScreen = () => {
             </View>
           </View>
 
-          <CuratorButton title="Record Expense" onPress={() => { }} style={styles.recordBtn} />
+          <RentifyButton title="Record Expense" onPress={() => { }} style={styles.recordBtn} />
         </TonalCard>
 
         {/* Recurring Bills */}

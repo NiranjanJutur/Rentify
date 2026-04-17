@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Tex
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge, StatusType } from '../../components/ui/StatusBadge';
-import { CuratorButton } from '../../components/ui/CuratorButton';
+import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { staffService } from '../../services/dataService';
@@ -177,7 +177,7 @@ export const StaffManagementScreen = () => {
               <Text style={styles.payrollDate}>Oct 30, 2026</Text>
             </View>
           </View>
-          <CuratorButton title="Process Salaries" onPress={() => {}} style={{ marginTop: 20 }} />
+          <RentifyButton title="Process Salaries" onPress={() => {}} style={{ marginTop: 20 }} />
         </TonalCard>
       </ScrollView>
     </SafeAreaView>

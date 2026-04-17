@@ -56,14 +56,14 @@ export const OwnerLoginScreen = ({ navigation }: any) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>The Curator</Text>
+          <Text style={styles.title}>Rentify</Text>
           <Text style={styles.subtitle}>ESTATE MANAGEMENT</Text>
         </View>
 
         <View style={styles.quoteContainer}>
            <Text style={styles.welcomeText}>Welcome to your estate dashboard.</Text>
            <Text style={styles.quoteText}>
-             "The Curator has transformed how we manage our luxury estates. It's no longer just management; it's high-end hospitality at scale."
+             "Rentify has transformed how we manage our luxury estates. It's no longer just management; it's high-end hospitality at scale."
            </Text>
            <Text style={styles.quoteAuthor}>Julian Thorne</Text>
            <Text style={styles.quoteRole}>Estate Director, London</Text>

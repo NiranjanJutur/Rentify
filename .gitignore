@@ -39,3 +39,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# tool-generated or temporary files
+artifacts/
+.firebase/
+y/
+ts_errors.txt

@@ -13,6 +13,19 @@ export const propertyService = {
     return data;
   },
 
+  async getMyProperties() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
   async getById(id: string) {
     const { data, error } = await supabase
       .from('properties')
@@ -23,21 +36,51 @@ export const propertyService = {
     return data;
   },
 
+  async getByInviteCode(inviteCode: string) {
+    const normalizedCode = inviteCode.trim().toUpperCase();
+    const { data, error } = await supabase
+      .from('properties')
+      .select('id, name, invite_code, status')
+      .eq('invite_code', normalizedCode)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
   async create(property: {
     name: string;
     address?: string;
     property_type?: string;
     total_rooms?: number;
+    total_floors?: number;
     base_rent?: number;
+    room_label_prefix?: string;
+    max_occupancy_per_room?: number;
+    total_capacity?: number;
+    owner_name?: string;
+    owner_phone?: string;
+    owner_email?: string;
+    caretaker_name?: string;
+    caretaker_phone?: string;
+    building_notes?: string;
+    property_config?: Record<string, any>;
     amenities?: string[];
   }) {
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.id) {
+      throw new Error('No Supabase session found. Demo mode cannot save properties. Please sign in with a real owner account.');
+    }
     const { data, error } = await supabase
       .from('properties')
       .insert([{ ...property, owner_id: user?.id }])
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      if (error.message?.toLowerCase().includes('row-level security')) {
+        throw new Error('Property save was blocked by Supabase RLS. Make sure you are logged in with a real owner account and rerun the latest properties policy SQL.');
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -65,6 +108,19 @@ export const tenantService = {
     return data;
   },
 
+  async findTenant(room: string, phone: string) {
+    const { data, error } = await supabase
+      .from('tenants')
+      .select('*')
+      .eq('room', room)
+      .eq('phone', phone)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+    return data && data.length > 0 ? data[0] : null;
+  },
+
   async create(tenant: {
     property_id: string;
     name: string;
@@ -74,11 +130,36 @@ export const tenantService = {
     block?: string;
     floor?: number;
     rent_amount?: number;
+    advance_amount?: number;
     status?: string;
+    aadhaar_id?: string;
+    aadhaar_front_url?: string;
+    aadhaar_back_url?: string;
+    tenant_photo_url?: string;
   }) {
+    const { data: existing, error: existingError } = await supabase
+      .from('tenants')
+      .select('id, status, phone')
+      .eq('property_id', tenant.property_id)
+      .eq('room', tenant.room)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (existingError) throw existingError;
+
+    const record = existing && existing.length > 0 ? existing[0] : null;
+
+    if (record?.status && record.status === 'occupied' && record.phone !== tenant.phone) {
+      throw new Error(`Room ${tenant.room} is currently occupied by another tenant.`);
+    }
     const { data, error } = await supabase
       .from('tenants')
-      .insert([tenant])
+      .upsert({
+        ...tenant,
+        status: tenant.status || 'pending',
+      }, {
+        onConflict: 'property_id,room'
+      })
       .select()
       .single();
     if (error) throw error;
@@ -119,6 +200,10 @@ export const staffService = {
     name: string;
     role: string;
     shift?: string;
+    duty_days?: string[];
+    payment_due_day?: number;
+    notes?: string;
+    photo_data?: string;
     phone?: string;
     salary?: number;
   }) {
@@ -278,6 +363,8 @@ export const complaintService = {
     tenant_id?: string;
     title: string;
     description?: string;
+    room_label?: string;
+    photo_data?: string;
     category?: string;
     priority?: string;
   }) {
@@ -370,20 +457,30 @@ export const noticeService = {
 // ============================================
 export const authService = {
   async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
+    return await supabase.auth.signInWithPassword({ email, password });
   },
 
-  async signUp(email: string, password: string) {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-    return data;
+  async signUp(email: string, password: string, metadata?: Record<string, any>, emailRedirectTo?: string) {
+    return await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        ...(metadata ? { data: metadata } : {}),
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
+      },
+    });
+  },
+
+  async resendSignupConfirmation(email: string, emailRedirectTo?: string) {
+    return await supabase.auth.resend({
+      type: 'signup',
+      email,
+      ...(emailRedirectTo ? { options: { emailRedirectTo } } : {}),
+    });
   },
 
   async signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    return await supabase.auth.signOut();
   },
 
   async getSession() {

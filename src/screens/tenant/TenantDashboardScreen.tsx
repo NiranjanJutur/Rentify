@@ -1,69 +1,127 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { theme } from '../../theme/theme';
 import { RentifyButton } from '../../components/ui/RentifyButton';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { paymentService, noticeService } from '../../services/dataService';
 
-const quickAccess = [
-  {
-    title: 'Meals',
-    subtitle: 'Today: Dinner 8:00 PM',
-    icon: 'restaurant-outline' as const,
-    route: 'TenantMeal',
-    tint: theme.colors.primary,
-  },
-  {
-    title: 'Payments',
-    subtitle: '1 due this month',
-    icon: 'wallet-outline' as const,
-    route: 'TenantPayment',
-    tint: theme.colors.secondary,
-  },
-  {
-    title: 'Support',
-    subtitle: '0 active complaints',
-    icon: 'construct-outline' as const,
-    route: 'TenantProfile',
-    tint: '#ba1a1a',
-  },
-  {
-    title: 'Profile',
-    subtitle: 'Lease ends: Dec 2026',
-    icon: 'person-outline' as const,
-    route: 'TenantProfile',
-    tint: theme.colors.primaryContainer,
-  },
-];
+type TenantDashboardScreenProps = {
+  activeTenant?: any;
+};
 
-export default function TenantDashboardScreen() {
+export default function TenantDashboardScreen({ activeTenant }: TenantDashboardScreenProps) {
   const navigation = useNavigation<any>();
+  const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState(0);
+  const [dueMonth, setDueMonth] = useState('N/A');
+  const [latestNotice, setLatestNotice] = useState<any>(null);
+
+  const fetchDashboardData = useCallback(async () => {
+    if (!activeTenant) return;
+    setLoading(true);
+    try {
+      const [payments, notices] = await Promise.all([
+        paymentService.getAll(),
+        noticeService.getAll()
+      ]);
+
+      const myPayments = (payments || []).filter(p => p.tenant_id === activeTenant.id);
+      const pendingPayment = myPayments.find(p => p.status === 'pending') || null;
+
+      if (pendingPayment) {
+        setBalance(pendingPayment.amount);
+        setDueMonth(pendingPayment.month || 'Current');
+      } else {
+        setBalance(0);
+        setDueMonth('No current dues');
+      }
+
+      setLatestNotice((notices || [])[0] || null);
+
+    } catch (e) {
+      console.log('Error fetching tenant dashboard data', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTenant]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDashboardData();
+    }, [fetchDashboardData])
+  );
+
+  const tenantName = activeTenant?.name || 'Resident';
+  const tenantInitials = tenantName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+
+  const quickAccess = [
+    {
+      title: 'Meals',
+      subtitle: 'Daily schedule',
+      icon: 'restaurant-outline' as const,
+      route: 'TenantMeal',
+      tint: theme.colors.primary,
+    },
+    {
+      title: 'Payments',
+      subtitle: balance > 0 ? '1 due this month' : 'All clear',
+      icon: 'wallet-outline' as const,
+      route: 'TenantPayment',
+      tint: theme.colors.secondary,
+    },
+    {
+      title: 'Support',
+      subtitle: 'Raise issues',
+      icon: 'construct-outline' as const,
+      route: 'TenantProfile',
+      tint: '#ba1a1a',
+    },
+    {
+      title: 'Profile',
+      subtitle: `Room: ${activeTenant?.room || 'N/A'}`,
+      icon: 'person-outline' as const,
+      route: 'TenantProfile',
+      tint: theme.colors.primaryContainer,
+    },
+  ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.name}>Aakash Mehta</Text>
-          <Text style={styles.subline}>Luxury Wing A2</Text>
+          <Text style={styles.name}>{tenantName}</Text>
+          <Text style={styles.subline}>{activeTenant?.room || ''} {activeTenant?.block ? `- ${activeTenant.block}` : ''}</Text>
         </View>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>AM</Text>
+          <Text style={styles.avatarText}>{tenantInitials}</Text>
         </View>
       </View>
 
       <TonalCard level="lowest" style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Current Balance</Text>
-        <Text style={styles.balanceValue}>Rs 12,500</Text>
+        {loading ? (
+           <ActivityIndicator size="small" color={theme.colors.primary} style={{marginVertical: 20}} />
+        ) : (
+          <>
+            <Text style={styles.balanceLabel}>Current Balance</Text>
+            <Text style={styles.balanceValue}>Rs {balance.toLocaleString('en-IN')}</Text>
 
-        <View style={styles.balanceMetaRow}>
-          <Text style={styles.dueText}>Due on 5 Nov 2026</Text>
-          <StatusBadge status="pending" label="Pending" />
-        </View>
+            <View style={styles.balanceMetaRow}>
+              <Text style={styles.dueText}>{balance > 0 ? `Due for ${dueMonth}` : 'No upcoming dues'}</Text>
+              <StatusBadge status={balance > 0 ? 'pending' : 'occupied'} label={balance > 0 ? 'Pending' : 'Cleared'} />
+            </View>
 
-        <RentifyButton title="Settle Balance" onPress={() => navigation.navigate('TenantPayment')} style={styles.balanceBtn} />
+            <RentifyButton 
+              title={balance > 0 ? "Settle Balance" : "View Payment History"} 
+              onPress={() => navigation.navigate('TenantPayment')} 
+              style={styles.balanceBtn} 
+              variant={balance > 0 ? 'primary' : 'secondary'}
+            />
+          </>
+        )}
       </TonalCard>
 
       <Text style={styles.sectionTitle}>Quick Access</Text>
@@ -84,13 +142,15 @@ export default function TenantDashboardScreen() {
         ))}
       </View>
 
-      <TonalCard level="low" style={styles.noticeCard} floating={false}>
-        <View style={styles.noticeRow}>
-          <Ionicons name="megaphone-outline" size={18} color={theme.colors.primary} />
-          <Text style={styles.noticeTitle}>Mess update</Text>
-        </View>
-        <Text style={styles.noticeBody}>Sunday breakfast will be served from 8:30 AM due to kitchen maintenance.</Text>
-      </TonalCard>
+      {latestNotice && (
+        <TonalCard level="low" style={styles.noticeCard} floating={false}>
+          <View style={styles.noticeRow}>
+            <Ionicons name={latestNotice.pinned ? "megaphone" : "notifications-outline"} size={18} color={theme.colors.primary} />
+            <Text style={styles.noticeTitle}>{latestNotice.title}</Text>
+          </View>
+          <Text style={styles.noticeBody} numberOfLines={2}>{latestNotice.body}</Text>
+        </TonalCard>
+      )}
     </ScrollView>
   );
 }

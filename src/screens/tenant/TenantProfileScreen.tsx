@@ -5,14 +5,27 @@ import { useNavigation } from '@react-navigation/native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 
-const profileRows = [
-  { label: 'Phone', value: '+91 98765 43210', icon: 'call-outline' as const },
-  { label: 'Email', value: 'aakash@example.com', icon: 'mail-outline' as const },
-  { label: 'Emergency Contact', value: '+91 98450 00112', icon: 'medkit-outline' as const },
-];
+type TenantProfileScreenProps = {
+  activeTenant?: any;
+};
 
-export default function TenantProfileScreen() {
+export default function TenantProfileScreen({ activeTenant }: TenantProfileScreenProps) {
   const navigation = useNavigation<any>();
+
+  const tenantName = activeTenant?.name || 'Resident Name';
+  const tenantInitials = tenantName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+  const phone = activeTenant?.phone || 'Not available';
+  const email = activeTenant?.email || 'Not available';
+  
+  const joinDate = activeTenant?.join_date 
+    ? new Date(activeTenant.join_date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+    : 'Recently';
+
+  const profileRows = [
+    { label: 'Phone', value: phone, icon: 'call-outline' as const },
+    { label: 'Email', value: email, icon: 'mail-outline' as const },
+    { label: 'Emergency Contact', value: 'Please update with admin', icon: 'medkit-outline' as const },
+  ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -25,14 +38,14 @@ export default function TenantProfileScreen() {
 
       <View style={styles.profileTop}>
         <View style={styles.avatarLarge}>
-          <Text style={styles.avatarText}>AM</Text>
+          <Text style={styles.avatarText}>{tenantInitials}</Text>
         </View>
-        <Text style={styles.name}>Aakash Mehta</Text>
-        <Text style={styles.tagline}>Tenant since Jan 2025</Text>
+        <Text style={styles.name}>{tenantName}</Text>
+        <Text style={styles.tagline}>Tenant since {joinDate}</Text>
 
         <View style={styles.roomBadge}>
           <Ionicons name="bed-outline" size={14} color={theme.colors.primary} />
-          <Text style={styles.roomText}>Luxury Wing A2</Text>
+          <Text style={styles.roomText}>{activeTenant?.room || 'Room'} {activeTenant?.block ? `- ${activeTenant.block}` : ''}</Text>
         </View>
       </View>
 
@@ -58,19 +71,19 @@ export default function TenantProfileScreen() {
 
         <View style={styles.leaseRow}>
           <Text style={styles.leaseLabel}>Lease Type</Text>
-          <Text style={styles.leaseValue}>11 Months</Text>
+          <Text style={styles.leaseValue}>Standard</Text>
         </View>
         <View style={styles.leaseRow}>
           <Text style={styles.leaseLabel}>Start Date</Text>
-          <Text style={styles.leaseValue}>01 Jan 2026</Text>
+          <Text style={styles.leaseValue}>{activeTenant?.join_date ? new Date(activeTenant.join_date).toLocaleDateString('en-IN') : 'N/A'}</Text>
         </View>
         <View style={styles.leaseRow}>
-          <Text style={styles.leaseLabel}>End Date</Text>
-          <Text style={styles.leaseValue}>30 Nov 2026</Text>
+          <Text style={styles.leaseLabel}>Status</Text>
+          <Text style={styles.leaseValue}>{activeTenant?.status || 'N/A'}</Text>
         </View>
         <View style={styles.leaseRowLast}>
           <Text style={styles.leaseLabel}>Monthly Rent</Text>
-          <Text style={styles.leaseValue}>Rs 12,500</Text>
+          <Text style={styles.leaseValue}>Rs {Number(activeTenant?.rent_amount || 0).toLocaleString('en-IN')}</Text>
         </View>
       </TonalCard>
     </ScrollView>

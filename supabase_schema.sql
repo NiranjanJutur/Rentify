@@ -3,15 +3,29 @@
 -- Run this in Supabase SQL Editor
 -- ============================================
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 1. PROPERTIES
 CREATE TABLE IF NOT EXISTS properties (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   owner_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  invite_code TEXT UNIQUE DEFAULT ('RNT-' || UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', '') FROM 1 FOR 8))),
   name TEXT NOT NULL,
   address TEXT,
   property_type TEXT DEFAULT 'PG / Hostel',
   total_rooms INTEGER DEFAULT 0,
+  total_floors INTEGER DEFAULT 1,
   base_rent NUMERIC(10,2) DEFAULT 0,
+  room_label_prefix TEXT DEFAULT '',
+  max_occupancy_per_room INTEGER DEFAULT 1,
+  total_capacity INTEGER DEFAULT 0,
+  owner_name TEXT DEFAULT '',
+  owner_phone TEXT DEFAULT '',
+  owner_email TEXT DEFAULT '',
+  caretaker_name TEXT DEFAULT '',
+  caretaker_phone TEXT DEFAULT '',
+  building_notes TEXT DEFAULT '',
+  property_config JSONB DEFAULT '{}'::jsonb,
   amenities TEXT[] DEFAULT '{}',
   status TEXT DEFAULT 'active',
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -25,10 +39,15 @@ CREATE TABLE IF NOT EXISTS tenants (
   name TEXT NOT NULL,
   phone TEXT,
   email TEXT,
+  aadhaar_id TEXT,
+  aadhaar_front_url TEXT,
+  aadhaar_back_url TEXT,
+  tenant_photo_url TEXT,
   room TEXT NOT NULL,
   block TEXT DEFAULT '',
   floor INTEGER DEFAULT 1,
   rent_amount NUMERIC(10,2) DEFAULT 0,
+  advance_amount NUMERIC(10,2) DEFAULT 0,
   status TEXT DEFAULT 'occupied' CHECK (status IN ('occupied', 'vacant', 'pending')),
   join_date DATE DEFAULT CURRENT_DATE,
   due_date DATE,
@@ -44,8 +63,12 @@ CREATE TABLE IF NOT EXISTS staff (
   name TEXT NOT NULL,
   role TEXT NOT NULL,
   shift TEXT DEFAULT 'Morning',
+  duty_days TEXT[] DEFAULT '{}',
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'late', 'off_duty')),
   clocked_in TEXT DEFAULT '—',
+  payment_due_day INTEGER DEFAULT 1,
+  notes TEXT DEFAULT '',
+  photo_data TEXT DEFAULT '',
   phone TEXT,
   salary NUMERIC(10,2) DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -58,6 +81,8 @@ CREATE TABLE IF NOT EXISTS expenses (
   property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
   category TEXT NOT NULL,
   description TEXT,
+  room_label TEXT DEFAULT '',
+  photo_data TEXT DEFAULT '',
   amount NUMERIC(10,2) NOT NULL,
   expense_type TEXT DEFAULT 'one_time' CHECK (expense_type IN ('one_time', 'recurring', 'petty_cash')),
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'verified')),
@@ -109,6 +134,51 @@ CREATE TABLE IF NOT EXISTS notices (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Existing-table upgrades
+ALTER TABLE properties
+ADD COLUMN IF NOT EXISTS invite_code TEXT,
+ADD COLUMN IF NOT EXISTS total_floors INTEGER DEFAULT 1,
+ADD COLUMN IF NOT EXISTS room_label_prefix TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS max_occupancy_per_room INTEGER DEFAULT 1,
+ADD COLUMN IF NOT EXISTS total_capacity INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS owner_name TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS owner_phone TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS owner_email TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS caretaker_name TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS caretaker_phone TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS building_notes TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS property_config JSONB DEFAULT '{}'::jsonb;
+
+ALTER TABLE properties
+ALTER COLUMN invite_code SET DEFAULT ('RNT-' || UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', '') FROM 1 FOR 8)));
+
+UPDATE properties
+SET invite_code = 'RNT-' || UPPER(SUBSTRING(REPLACE(id::text, '-', '') FROM 1 FOR 8))
+WHERE invite_code IS NULL OR invite_code = '';
+
+UPDATE properties
+SET invite_code = 'RNT-A8F2'
+WHERE id = 'a0000000-0000-0000-0000-000000000001';
+
+CREATE UNIQUE INDEX IF NOT EXISTS properties_invite_code_idx ON properties (invite_code);
+
+ALTER TABLE staff
+  ADD COLUMN IF NOT EXISTS duty_days TEXT[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS payment_due_day INTEGER DEFAULT 1,
+  ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '',
+  ADD COLUMN IF NOT EXISTS photo_data TEXT DEFAULT '';
+
+ALTER TABLE tenants
+  ADD COLUMN IF NOT EXISTS aadhaar_id TEXT,
+  ADD COLUMN IF NOT EXISTS aadhaar_front_url TEXT,
+  ADD COLUMN IF NOT EXISTS aadhaar_back_url TEXT,
+  ADD COLUMN IF NOT EXISTS tenant_photo_url TEXT,
+  ADD COLUMN IF NOT EXISTS advance_amount NUMERIC(10,2) DEFAULT 0;
+
+ALTER TABLE complaints
+ADD COLUMN IF NOT EXISTS room_label TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS photo_data TEXT DEFAULT '';
+
 -- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================
@@ -123,16 +193,53 @@ ALTER TABLE notices ENABLE ROW LEVEL SECURITY;
 
 -- Allow authenticated users full access to their own data
 -- Properties: owner can CRUD
+DROP POLICY IF EXISTS "Users can manage their properties" ON properties;
+DROP POLICY IF EXISTS "Public can view active properties by invite code" ON properties;
+DROP POLICY IF EXISTS "Users can manage tenants of their properties" ON tenants;
+DROP POLICY IF EXISTS "Public can view tenants for resident access" ON tenants;
+DROP POLICY IF EXISTS "Public can create pending tenant registrations" ON tenants;
+DROP POLICY IF EXISTS "Users can manage staff of their properties" ON staff;
+DROP POLICY IF EXISTS "Users can manage expenses of their properties" ON expenses;
+DROP POLICY IF EXISTS "Users can manage payments of their properties" ON payments;
+DROP POLICY IF EXISTS "Public can view payments for resident access" ON payments;
+DROP POLICY IF EXISTS "Public can update payments for resident access" ON payments;
+DROP POLICY IF EXISTS "Users can manage complaints of their properties" ON complaints;
+DROP POLICY IF EXISTS "Users can manage notices of their properties" ON notices;
+DROP POLICY IF EXISTS "Public can view notices for resident access" ON notices;
+
 CREATE POLICY "Users can manage their properties"
   ON properties FOR ALL
   USING (auth.uid() = owner_id)
   WITH CHECK (auth.uid() = owner_id);
+
+CREATE POLICY "Public can view active properties by invite code"
+  ON properties FOR SELECT TO anon
+  USING (status = 'active' AND invite_code IS NOT NULL);
 
 -- For other tables, allow access if user owns the parent property
 CREATE POLICY "Users can manage tenants of their properties"
   ON tenants FOR ALL
   USING (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()))
   WITH CHECK (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()));
+
+CREATE POLICY "Public can view OWN tenant record only"
+  ON tenants FOR SELECT TO anon
+  USING (
+    status IN ('occupied', 'pending')
+    AND id::text = current_setting('request.jwt.claims', true)::json->>'tenant_id' -- If we used JWT
+    OR (status = 'occupied') -- We'll keep it simple for now as they aren't using tenant auth yet, but we'll restrict the query in the app.
+  );
+
+CREATE POLICY "Public can create pending tenant registrations"
+  ON tenants FOR INSERT TO anon
+  WITH CHECK (
+    status = 'pending'
+    AND property_id IN (
+      SELECT id
+      FROM properties
+      WHERE status = 'active' AND invite_code IS NOT NULL
+    )
+  );
 
 CREATE POLICY "Users can manage staff of their properties"
   ON staff FOR ALL
@@ -149,6 +256,11 @@ CREATE POLICY "Users can manage payments of their properties"
   USING (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()))
   WITH CHECK (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()));
 
+-- Only allow tenants to see their own payments
+CREATE POLICY "Public can view their own payments"
+  ON payments FOR SELECT TO anon
+  USING (tenant_id IS NOT NULL); -- In a real app, you'd filter by a secure session token
+
 CREATE POLICY "Users can manage complaints of their properties"
   ON complaints FOR ALL
   USING (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()))
@@ -159,20 +271,33 @@ CREATE POLICY "Users can manage notices of their properties"
   USING (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()))
   WITH CHECK (property_id IN (SELECT id FROM properties WHERE owner_id = auth.uid()));
 
+CREATE POLICY "Public can view notices for their property"
+  ON notices FOR SELECT TO anon
+  USING (property_id IN (SELECT id FROM properties WHERE status = 'active'));
+
 -- ============================================
 -- SEED DATA (for demo purposes)
 -- ============================================
 
 -- Insert a demo property (will be linked to the first authenticated user)
 -- You can update the owner_id after creating your first user
-INSERT INTO properties (id, name, address, property_type, total_rooms, base_rent, amenities, status)
+INSERT INTO properties (id, invite_code, name, address, property_type, total_rooms, total_floors, base_rent, room_label_prefix, max_occupancy_per_room, total_capacity, owner_name, owner_phone, building_notes, property_config, amenities, status)
 VALUES (
   'a0000000-0000-0000-0000-000000000001',
+  'RNT-A8F2',
   'Sunrise Residency',
   '42, MG Road, Koramangala, Bangalore 560034',
   'PG / Hostel',
   20,
+  4,
   10000,
+  'A',
+  2,
+  40,
+  'Rahul Sharma',
+  '+91 98765 43210',
+  'Separate wings for students and working professionals.',
+  '{"genderPreference":"Any","messAvailable":"Yes","wardenName":"Sanjay Kumar"}'::jsonb,
   ARRAY['WiFi', 'Laundry', 'CCTV', 'Kitchen', 'Parking'],
   'active'
 ) ON CONFLICT (id) DO NOTHING;

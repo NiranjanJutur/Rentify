@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { theme } from '../../theme/theme';
 
-export default function TenantMealScreen() {
+export default function TenantMealScreen({ activeTenant }: any) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>

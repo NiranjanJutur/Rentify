@@ -3,17 +3,21 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Ref
 import { theme } from '../../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { propertyService, tenantService, paymentService, expenseService, staffService, complaintService } from '../../services/dataService';
+import { propertyService, tenantService, paymentService, expenseService, staffService, complaintService, authService } from '../../services/dataService';
+
+import { RentifyButton } from '../../components/ui/RentifyButton';
+import { TonalCard } from '../../components/ui/TonalCard';
 
 const quickActions = [
   { name: 'Tenants', icon: 'people-outline' as const, route: 'TenantManagement', color: theme.colors.primary },
   { name: 'Payments', icon: 'wallet-outline' as const, route: 'PaymentCollection', color: theme.colors.secondary },
   { name: 'Expenses', icon: 'receipt-outline' as const, route: 'ExpenseTracker', color: '#f59e0b' },
   { name: 'Staff', icon: 'person-outline' as const, route: 'StaffManagement', color: theme.colors.primaryContainer },
+  { name: 'Rooms', icon: 'grid-outline' as const, route: 'RoomOverview', color: '#10b981' },
   { name: 'Maintenance', icon: 'construct-outline' as const, route: 'MaintenanceComplaints', color: '#ba1a1a' },
   { name: 'Notices', icon: 'megaphone-outline' as const, route: 'Notices', color: '#7c3aed' },
   { name: 'Add Property', icon: 'add-circle-outline' as const, route: 'RegisterProperty', color: theme.colors.secondary },
-  { name: 'Reports', icon: 'analytics-outline' as const, route: null, color: theme.colors.onSurfaceVariant },
+  { name: 'Reports', icon: 'analytics-outline' as const, route: 'Reports', color: theme.colors.onSurfaceVariant },
 ];
 
 export const OwnerDashboardScreen = () => {
@@ -33,21 +37,39 @@ export const OwnerDashboardScreen = () => {
     openComplaints: 0,
     staffOnline: '0/0'
   });
+  const [activeProperty, setActiveProperty] = useState<any>(null);
+  const [propertyList, setPropertyList] = useState<any[]>([]);
+  const [recentPayments, setRecentPayments] = useState<any[]>([]);
+  const [upcomingDues, setUpcomingDues] = useState<any[]>([]);
 
   const fetchMetrics = useCallback(async () => {
     try {
-      const demoPropId = 'a0000000-0000-0000-0000-000000000001';
-      const [props, tenants, paySum, expSum, staff, complaints] = await Promise.all([
-        propertyService.getAll(),
-        tenantService.getAll(demoPropId),
-        paymentService.getSummary(demoPropId),
-        expenseService.getSummary(demoPropId),
-        staffService.getAll(demoPropId),
-        complaintService.getAll(demoPropId)
+      setLoading(true);
+      const props = await propertyService.getMyProperties();
+      setPropertyList(props || []);
+      
+      const currentProp = props?.[0];
+      setActiveProperty(currentProp);
+
+      if (!currentProp) {
+        setMetrics(prev => ({ ...prev, properties: 0 }));
+        setRecentPayments([]);
+        setUpcomingDues([]);
+        return;
+      }
+
+      const propId = currentProp.id;
+      const [tenants, paySum, expSum, staff, complaints, allPayments] = await Promise.all([
+        tenantService.getAll(propId),
+        paymentService.getSummary(propId),
+        expenseService.getSummary(propId),
+        staffService.getAll(propId),
+        complaintService.getAll(propId),
+        paymentService.getAll(propId)
       ]);
 
       const occupied = tenants?.filter((t: any) => t.status === 'occupied').length || 0;
-      const staffOnline = staff?.filter((s: any) => s.status === 'occupied').length || 0;
+      const staffCount = staff?.filter((s: any) => s.status === 'active').length || 0;
 
       setMetrics({
         properties: props?.length || 0,
@@ -60,8 +82,16 @@ export const OwnerDashboardScreen = () => {
         expenses: expSum.totalExpenses,
         profit: paySum.collected - expSum.totalExpenses,
         openComplaints: complaints?.filter((c: any) => c.status === 'open').length || 0,
-        staffOnline: `${staffOnline}/${staff?.length || 0}`
+        staffOnline: `${staffCount}/${staff?.length || 0}`
       });
+
+      // Simple recent activity logic
+      setRecentPayments(allPayments?.slice(0, 4) || []);
+      
+      // Simple upcoming dues logic
+      const dues = allPayments?.filter(p => p.status !== 'paid').slice(0, 4) || [];
+      setUpcomingDues(dues);
+
     } catch (err) {
       console.log('Dashboard fetch error:', err);
     } finally {
@@ -69,6 +99,20 @@ export const OwnerDashboardScreen = () => {
       setRefreshing(false);
     }
   }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await authService.signOut();
+      // Navigation state will reset automatically if App.tsx uses onAuthStateChange, 
+      // but we can explicitly navigate too if needed.
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'OwnerLogin' }],
+      });
+    } catch (err) {
+      console.error('Sign out failed:', err);
+    }
+  };
 
   useEffect(() => {
     fetchMetrics();
@@ -94,155 +138,153 @@ export const OwnerDashboardScreen = () => {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Estate Overview</Text>
-            <Text style={styles.subtitle}>Monitoring {metrics.properties} Properties • {metrics.tenants} Tenants</Text>
-          </View>
-          <TouchableOpacity style={styles.profileBtn}>
-            <Ionicons name="person-circle-outline" size={36} color={theme.colors.primary} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Occupancy Card */}
-        <View style={styles.occupancyCard}>
-          <Text style={styles.sectionTitleSmall}>Occupancy</Text>
-          <View style={styles.row}>
-            <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>{metrics.occupied}</Text>
-              <Text style={styles.metricLabelSmall}>Occupied</Text>
+        <View style={styles.webContainer}>
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.greeting}>{activeProperty?.name || 'Estate Overview'}</Text>
+              <Text style={styles.subtitle}>
+                {propertyList.length === 0 
+                  ? 'No properties registered' 
+                  : `Monitoring ${metrics.properties} Properties / ${metrics.tenants} Tenants`}
+              </Text>
             </View>
-            <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>{metrics.vacant}</Text>
-              <Text style={styles.metricLabelSmall}>Vacant</Text>
+            <View style={styles.headerActions}>
+              <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate('OwnerProfile')}>
+                <Ionicons name="person-circle-outline" size={32} color={theme.colors.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.headerBtn, { marginLeft: 8 }]} onPress={handleSignOut}>
+                <Ionicons name="log-out-outline" size={26} color={theme.colors.onSurfaceVariant} />
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
 
-        {/* Financial Metrics */}
-        <View style={[styles.card, styles.primaryCard]}>
-          <Text style={styles.cardHeroValue}>₹{metrics.collected.toLocaleString('en-IN')}</Text>
-          <Text style={styles.cardHeroLabel}>Rent Collected</Text>
-          <View style={styles.financeRow}>
-             <View style={styles.metricBlock}>
-                <Text style={styles.financeVal}>₹{metrics.expected.toLocaleString('en-IN')}</Text>
-                <Text style={styles.financeLbl}>Expected</Text>
-             </View>
-             <View style={styles.metricBlock}>
-                <Text style={styles.financeVal}>₹{metrics.pending.toLocaleString('en-IN')}</Text>
-                <Text style={styles.financeLbl}>Pending</Text>
-             </View>
-          </View>
-          <View style={styles.financeRow}>
-             <View style={styles.metricBlock}>
-                <Text style={styles.financeVal}>₹{metrics.expenses.toLocaleString('en-IN')}</Text>
-                <Text style={styles.financeLbl}>Expenses</Text>
-             </View>
-             <View style={styles.metricBlock}>
-                <Text style={styles.financeVal}>₹{metrics.profit.toLocaleString('en-IN')}</Text>
-                <Text style={styles.financeLbl}>Net Cashflow</Text>
-             </View>
-          </View>
-        </View>
+          {propertyList.length === 0 && (
+            <TonalCard level="medium" style={styles.emptyStateCard}>
+              <Ionicons name="business-outline" size={48} color={theme.colors.primary} />
+              <Text style={styles.emptyStateTitle}>Welcome to Rentify!</Text>
+              <Text style={styles.emptyStateText}>You haven't added any properties yet. Register your first property to start managing tenants and tracking rent.</Text>
+              <RentifyButton 
+                title="Add a Property" 
+                variant="primary" 
+                onPress={() => navigation.navigate('RegisterProperty')} 
+                style={{ paddingHorizontal: 40, marginTop: 10 }}
+              />
+            </TonalCard>
+          )}
 
-        {/* Quick Actions Grid */}
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActionsGrid}>
-          {quickActions.map((action, i) => (
-            <TouchableOpacity
-              key={i}
-              style={styles.quickActionItem}
-              onPress={() => action.route && navigation.navigate(action.route)}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.quickActionIcon, { backgroundColor: action.color + '1A' }]}>
-                <Ionicons name={action.icon} size={24} color={action.color} />
+          {/* Occupancy Card */}
+          <View style={styles.occupancyCard}>
+            <Text style={styles.sectionTitleSmall}>Occupancy</Text>
+            <View style={styles.row}>
+              <View style={styles.metricBlock}>
+                <Text style={styles.metricValueLarge}>{metrics.occupied}</Text>
+                <Text style={styles.metricLabelSmall}>Occupied</Text>
               </View>
-              <Text style={styles.quickActionLabel}>{action.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+              <View style={styles.metricBlock}>
+                <Text style={styles.metricValueLarge}>{metrics.vacant}</Text>
+                <Text style={styles.metricLabelSmall}>Vacant</Text>
+              </View>
+            </View>
+          </View>
 
-        {/* Operational Pulse */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitleSmall}>Operational Pulse</Text>
-          <View style={styles.row}>
-            <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>{metrics.openComplaints}</Text>
-              <Text style={styles.metricLabelSmall}>Open Complaints</Text>
+          {/* Financial Metrics */}
+          <View style={[styles.card, styles.primaryCard]}>
+            <Text style={styles.cardHeroValue}>Rs {metrics.collected.toLocaleString('en-IN')}</Text>
+            <Text style={styles.cardHeroLabel}>Rent Collected</Text>
+            <View style={styles.financeRow}>
+              <View style={styles.metricBlock}>
+                  <Text style={styles.financeVal}>Rs {metrics.expected.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.financeLbl}>Expected</Text>
+              </View>
+              <View style={styles.metricBlock}>
+                  <Text style={styles.financeVal}>Rs {metrics.pending.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.financeLbl}>Pending</Text>
+              </View>
             </View>
-            <View style={styles.metricBlock}>
-              <Text style={styles.metricValueLarge}>{metrics.staffOnline}</Text>
-              <Text style={styles.metricLabelSmall}>Staff Clocked-in</Text>
+            <View style={styles.financeRow}>
+              <View style={styles.metricBlock}>
+                  <Text style={styles.financeVal}>Rs {metrics.expenses.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.financeLbl}>Expenses</Text>
+              </View>
+              <View style={styles.metricBlock}>
+                  <Text style={styles.financeVal}>Rs {metrics.profit.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.financeLbl}>Net Cashflow</Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        {/* Activity Feed */}
-        <Text style={styles.sectionTitle}>Activity Feed</Text>
-        <View style={styles.listContainer}>
-          <View style={styles.activityItem}>
-            <View style={styles.activityDot} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.activityText}>Aakash Mehta paid rent for Luxury Wing A2</Text>
-              <Text style={styles.activityTime}>2 minutes ago</Text>
-            </View>
+          {/* Quick Actions Grid */}
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            {quickActions.map((action, i) => (
+              <TouchableOpacity
+                key={i}
+                style={styles.quickActionItem}
+                onPress={() => navigation.navigate(action.route)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: action.color + '1A' }]}>
+                  <Ionicons name={action.icon} size={24} color={action.color} />
+                </View>
+                <Text style={styles.quickActionLabel}>{action.name}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-          <View style={styles.activityItem}>
-            <View style={[styles.activityDot, { backgroundColor: theme.colors.secondary }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.activityText}>Complaint #2492 (WiFi Issue) has been marked as resolved</Text>
-              <Text style={styles.activityTime}>45 minutes ago</Text>
-            </View>
-          </View>
-          <View style={styles.activityItem}>
-            <View style={[styles.activityDot, { backgroundColor: '#7c3aed' }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.activityText}>Rohit Sharma completed digital onboarding</Text>
-              <Text style={styles.activityTime}>2 hours ago</Text>
-            </View>
-          </View>
-          <View style={styles.activityItem}>
-            <View style={styles.activityDot} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.activityText}>Isha Gupta paid rent + security deposit</Text>
-              <Text style={styles.activityTime}>5 hours ago</Text>
-            </View>
-          </View>
-        </View>
 
-        {/* Upcoming Dues */}
-        <Text style={styles.sectionTitle}>Upcoming Dues</Text>
-        <View style={styles.listContainer}>
-          <View style={styles.dueItem}>
-            <View style={styles.dueAvatar}>
-              <Text style={styles.dueAvatarText}>S</Text>
+          {/* Operational Pulse */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitleSmall}>Operational Pulse</Text>
+            <View style={styles.row}>
+              <View style={styles.metricBlock}>
+                <Text style={styles.metricValueLarge}>{metrics.openComplaints}</Text>
+                <Text style={styles.metricLabelSmall}>Open Complaints</Text>
+              </View>
+              <View style={styles.metricBlock}>
+                <Text style={styles.metricValueLarge}>{metrics.staffOnline}</Text>
+                <Text style={styles.metricLabelSmall}>Staff Clocked-in</Text>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.dueName}>Sunita R.</Text>
-              <Text style={styles.dueRoom}>Block C • Room 104</Text>
-            </View>
-            <Text style={styles.dueAmount}>₹9,500</Text>
           </View>
-          <View style={styles.dueItem}>
-            <View style={styles.dueAvatar}>
-              <Text style={styles.dueAvatarText}>V</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.dueName}>Varun K.</Text>
-              <Text style={styles.dueRoom}>Premium Annex • Suite 02</Text>
-            </View>
-            <Text style={styles.dueAmount}>₹14,000</Text>
+
+          {/* Activity Feed */}
+          <Text style={styles.sectionTitle}>Activity Feed</Text>
+          <View style={styles.listContainer}>
+            {recentPayments.length === 0 ? (
+              <Text style={styles.emptyActivityText}>No recent activities recorded.</Text>
+            ) : (
+              recentPayments.map((p, i) => (
+                <View key={p.id} style={styles.activityItem}>
+                  <View style={[styles.activityDot, { backgroundColor: p.status === 'paid' ? theme.colors.secondary : theme.colors.warning }]} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.activityText}>
+                      {p.tenants?.name} {p.status === 'paid' ? 'paid rent for' : 'has rent due for'} {p.tenants?.room}
+                    </Text>
+                    <Text style={styles.activityTime}>{p.month || 'Recent'}</Text>
+                  </View>
+                </View>
+              ))
+            )}
           </View>
-          <View style={styles.dueItem}>
-            <View style={styles.dueAvatar}>
-              <Text style={styles.dueAvatarText}>P</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.dueName}>Pooja M.</Text>
-              <Text style={styles.dueRoom}>Block A • Room 302</Text>
-            </View>
-            <Text style={styles.dueAmount}>₹12,500</Text>
+
+          {/* Upcoming Dues */}
+          <Text style={styles.sectionTitle}>Upcoming Dues</Text>
+          <View style={styles.listContainer}>
+            {upcomingDues.length === 0 ? (
+              <Text style={styles.emptyActivityText}>No pending dues.</Text>
+            ) : (
+              upcomingDues.map((p) => (
+                <View key={p.id} style={styles.dueItem}>
+                  <View style={styles.dueAvatar}>
+                    <Text style={styles.dueAvatarText}>{(p.tenants?.name || 'T')[0]}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.dueName}>{p.tenants?.name}</Text>
+                    <Text style={styles.dueRoom}>{p.tenants?.block} / {p.tenants?.room}</Text>
+                  </View>
+                  <Text style={styles.dueAmount}>Rs {p.amount.toLocaleString('en-IN')}</Text>
+                </View>
+              ))
+            )}
           </View>
         </View>
       </ScrollView>
@@ -284,13 +326,26 @@ const styles = StyleSheet.create({
     paddingTop: theme.spacing.xl,
     paddingBottom: 100,
   },
+  webContainer: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 900,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: theme.spacing.xl,
   },
-  profileBtn: { padding: 4 },
+  headerActions: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  headerBtn: { 
+    padding: 6,
+    borderRadius: 12,
+    backgroundColor: theme.colors.surfaceContainerLow,
+  },
   greeting: {
     fontFamily: theme.typography.headline.fontFamily,
     fontSize: 32,
@@ -503,5 +558,33 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: theme.colors.primary,
     marginTop: 4,
+  },
+  emptyStateCard: {
+    alignItems: 'center',
+    padding: theme.spacing.xxl,
+    marginVertical: theme.spacing.xl,
+    backgroundColor: theme.colors.surfaceContainerLow,
+  },
+  emptyStateTitle: {
+    fontFamily: theme.typography.headline.fontFamily,
+    fontSize: 22,
+    color: theme.colors.onSurface,
+    marginTop: 16,
+  },
+  emptyStateText: {
+    fontFamily: theme.typography.body.fontFamily,
+    fontSize: 14,
+    color: theme.colors.onSurfaceVariant,
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: theme.spacing.lg,
+  },
+  emptyActivityText: {
+    fontFamily: theme.typography.body.fontFamily,
+    fontSize: 14,
+    color: theme.colors.onSurfaceVariant,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 20,
   }
 });

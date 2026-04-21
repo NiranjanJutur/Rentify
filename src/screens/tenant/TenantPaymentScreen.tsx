@@ -1,41 +1,78 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Alert, View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { RentifyButton } from '../../components/ui/RentifyButton';
+import { paymentService } from '../../services/dataService';
 
-const transactions = [
-  {
-    id: 'PAY-1027',
-    title: 'October Rent',
-    date: '05 Oct 2026',
-    amount: 'Rs 12,500',
-    badge: { status: 'occupied' as const, label: 'Paid' },
-    method: 'UPI',
-  },
-  {
-    id: 'SEC-1027',
-    title: 'Security Deposit (Part 2)',
-    date: '07 Oct 2026',
-    amount: 'Rs 5,000',
-    badge: { status: 'occupied' as const, label: 'Paid' },
-    method: 'Bank Transfer',
-  },
-  {
-    id: 'PAY-1127',
-    title: 'November Rent',
-    date: '05 Nov 2026',
-    amount: 'Rs 12,500',
-    badge: { status: 'pending' as const, label: 'Pending' },
-    method: 'Not paid',
-  },
-];
+type TenantPaymentScreenProps = {
+  activeTenant?: any;
+};
 
-export default function TenantPaymentScreen() {
+export default function TenantPaymentScreen({ activeTenant }: TenantPaymentScreenProps) {
   const navigation = useNavigation<any>();
+  const [loading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [amountDue, setAmountDue] = useState(0);
+  const [activeDuePayment, setActiveDuePayment] = useState<any>(null);
+
+  const fetchData = useCallback(async () => {
+    if (!activeTenant) return;
+    setLoading(true);
+    try {
+      const allPayments = await paymentService.getAll();
+      const myPayments = (allPayments || []).filter(p => p.tenant_id === activeTenant.id);
+      myPayments.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      
+      setTransactions(myPayments);
+
+      const due = myPayments.find(p => p.status === 'pending');
+      if (due) {
+        setAmountDue(due.amount);
+        setActiveDuePayment(due);
+      } else {
+        setAmountDue(0);
+        setActiveDuePayment(null);
+      }
+    } catch (e) {
+      console.log('Error fetching tenant payments', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTenant]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
+
+  const handlePay = async () => {
+    if (!activeDuePayment) return;
+    
+    Alert.alert(
+      'Process Payment', 
+      `Confirm payment of Rs ${amountDue.toLocaleString('en-IN')} for ${activeDuePayment.month || 'rent'}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Pay Now', 
+          onPress: async () => {
+            try {
+               await paymentService.markPaid(activeDuePayment.id, 'UPI');
+               Alert.alert('Success', 'Payment processed successfully.');
+               fetchData();
+            } catch (e) {
+               Alert.alert('Error', 'Payment failed.');
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -49,37 +86,49 @@ export default function TenantPaymentScreen() {
         </View>
       </View>
 
-      <TonalCard level="lowest" style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Amount Due</Text>
-        <Text style={styles.balanceValue}>Rs 12,500</Text>
+      {loading ? (
+        <ActivityIndicator color={theme.colors.primary} size="large" style={{ marginVertical: 30 }} />
+      ) : (
+        <>
+          <TonalCard level="lowest" style={styles.balanceCard}>
+            <Text style={styles.balanceLabel}>Amount Due</Text>
+            <Text style={styles.balanceValue}>Rs {amountDue.toLocaleString('en-IN')}</Text>
 
-        <View style={styles.metaRow}>
-          <Text style={styles.metaText}>Due on 05 Nov 2026</Text>
-          <StatusBadge status="pending" label="Pending" />
-        </View>
-
-        <RentifyButton title="Pay Now" onPress={() => {}} style={styles.payBtn} />
-      </TonalCard>
-
-      <Text style={styles.sectionTitle}>Recent Transactions</Text>
-      <View style={styles.list}>
-        {transactions.map((tx) => (
-          <TonalCard key={tx.id} level="lowest" style={styles.txCard}>
-            <View style={styles.txTopRow}>
-              <View>
-                <Text style={styles.txTitle}>{tx.title}</Text>
-                <Text style={styles.txMeta}>{tx.id} - {tx.date}</Text>
-              </View>
-              <Text style={styles.txAmount}>{tx.amount}</Text>
+            <View style={styles.metaRow}>
+              <Text style={styles.metaText}>{amountDue > 0 ? `Due for ${activeDuePayment?.month || 'Current'}` : 'All dues cleared'}</Text>
+              <StatusBadge status={amountDue > 0 ? 'pending' : 'occupied'} label={amountDue > 0 ? 'Pending' : 'Cleared'} />
             </View>
 
-            <View style={styles.txBottomRow}>
-              <Text style={styles.txMethod}>{tx.method}</Text>
-              <StatusBadge status={tx.badge.status} label={tx.badge.label} />
-            </View>
+            {amountDue > 0 && (
+              <RentifyButton title="Pay Now" onPress={handlePay} style={styles.payBtn} />
+            )}
           </TonalCard>
-        ))}
-      </View>
+
+          <Text style={styles.sectionTitle}>Recent Transactions</Text>
+          <View style={styles.list}>
+            {transactions.length === 0 ? (
+              <Text style={{color: theme.colors.onSurfaceVariant, fontSize: 13, marginTop: 10}}>No transactions found.</Text>
+            ) : (
+              transactions.map((tx) => (
+                <TonalCard key={tx.id} level="lowest" style={styles.txCard}>
+                  <View style={styles.txTopRow}>
+                    <View>
+                      <Text style={styles.txTitle}>{tx.month ? `${tx.month} Rent` : 'Payment'}</Text>
+                      <Text style={styles.txMeta}>{tx.id.substring(0,8)} - {tx.created_at ? new Date(tx.created_at).toLocaleDateString('en-IN') : ''}</Text>
+                    </View>
+                    <Text style={styles.txAmount}>Rs {Number(tx.amount || 0).toLocaleString('en-IN')}</Text>
+                  </View>
+
+                  <View style={styles.txBottomRow}>
+                    <Text style={styles.txMethod}>{tx.status === 'paid' ? 'UPI' : 'Not paid'}</Text>
+                    <StatusBadge status={tx.status === 'paid' ? 'occupied' : 'pending'} label={tx.status === 'paid' ? 'Paid' : 'Pending'} />
+                  </View>
+                </TonalCard>
+              ))
+            )}
+          </View>
+        </>
+      )}
 
       <TonalCard level="low" style={styles.tipCard} floating={false}>
         <View style={styles.tipRow}>

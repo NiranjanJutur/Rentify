@@ -38,7 +38,7 @@ export const TonalCard: React.FC<TonalCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
+    borderRadius: 8,
     padding: theme.spacing.lg,
   },
 });

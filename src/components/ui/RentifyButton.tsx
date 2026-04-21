@@ -59,7 +59,7 @@ export const RentifyButton: React.FC<RentifyButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
+    borderRadius: 8,
     overflow: 'hidden',
   },
   gradient: {
@@ -72,11 +72,12 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.label.fontFamily,
     color: theme.colors.onPrimary,
     fontSize: 16,
+    letterSpacing: 0,
   },
   secondaryContainer: {
     paddingVertical: 14,
     paddingHorizontal: theme.spacing.xl,
-    borderRadius: 16,
+    borderRadius: 8,
     backgroundColor: theme.colors.surfaceContainerHigh + '66', // 40% opacity
     alignItems: 'center',
     justifyContent: 'center',
@@ -88,5 +89,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.label.fontFamily,
     color: theme.colors.primary,
     fontSize: 15,
+    letterSpacing: 0,
   },
 });

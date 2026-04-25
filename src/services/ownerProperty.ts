@@ -1,7 +1,7 @@
 import { propertyService } from './dataService';
 
 export const getPrimaryProperty = async () => {
-  const properties = await propertyService.getAll();
+  const properties = await propertyService.getMyProperties();
   if (!properties || properties.length === 0) {
     return null;
   }

@@ -103,12 +103,20 @@ export const CreateAccountScreen = ({ navigation, onAuthenticated }: CreateAccou
     }
   };
 
+  const handleBack = () => {
+    if (navigation?.canGoBack?.()) {
+      navigation.goBack();
+      return;
+    }
+    navigation?.navigate('OwnerLogin');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.topBar}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => navigation?.navigate('OwnerLogin')}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleBack}>
               <Ionicons name="arrow-back" size={21} color={theme.colors.onSurface} />
             </TouchableOpacity>
             <Text style={styles.brand}>Curator Portal</Text>

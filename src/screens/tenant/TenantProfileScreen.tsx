@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../../theme/theme';
 import { TonalCard } from '../../components/ui/TonalCard';
+import { RentifyButton } from '../../components/ui/RentifyButton';
+import { authService } from '../../services/dataService';
 
 type TenantProfileScreenProps = {
   activeTenant?: any;
@@ -26,6 +28,23 @@ export default function TenantProfileScreen({ activeTenant }: TenantProfileScree
     { label: 'Email', value: email, icon: 'mail-outline' as const },
     { label: 'Emergency Contact', value: 'Please update with admin', icon: 'medkit-outline' as const },
   ];
+
+  const handleSignOut = async () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { 
+        text: 'Sign Out', 
+        style: 'destructive', 
+        onPress: async () => {
+          try {
+            await authService.signOut();
+          } catch (e) {
+            console.log('Error signing out', e);
+          }
+        }
+      }
+    ]);
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -86,6 +105,13 @@ export default function TenantProfileScreen({ activeTenant }: TenantProfileScree
           <Text style={styles.leaseValue}>Rs {Number(activeTenant?.rent_amount || 0).toLocaleString('en-IN')}</Text>
         </View>
       </TonalCard>
+
+      <RentifyButton 
+        title="Sign Out" 
+        variant="secondary" 
+        onPress={handleSignOut} 
+        style={styles.signOutBtn}
+      />
     </ScrollView>
   );
 }
@@ -217,5 +243,9 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.label.fontFamily,
     fontSize: 14,
     color: theme.colors.onSurface,
+  },
+  signOutBtn: {
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.xxl,
   },
 });

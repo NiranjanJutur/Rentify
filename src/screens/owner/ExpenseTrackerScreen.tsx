@@ -35,7 +35,8 @@ export const ExpenseTrackerScreen = () => {
 
   const fetchExpenses = useCallback(async () => {
     try {
-      const data = await expenseService.getAll();
+      const propertyId = await requirePrimaryPropertyId();
+      const data = await expenseService.getAll(propertyId);
       setExpenses(data || []);
     } catch (err: any) {
       setMessage(err.message || 'Could not load expense records.');

@@ -1,18 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { Alert, View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Alert, View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, StatusBar, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { theme } from '../../theme/theme';
-import { TonalCard } from '../../components/ui/TonalCard';
-import { StatusBadge } from '../../components/ui/StatusBadge';
-import { RentifyButton } from '../../components/ui/RentifyButton';
 import { paymentService } from '../../services/dataService';
+import { LinearGradient } from 'expo-linear-gradient';
 
-type TenantPaymentScreenProps = {
-  activeTenant?: any;
-};
-
-export default function TenantPaymentScreen({ activeTenant }: TenantPaymentScreenProps) {
+export default function TenantPaymentScreen({ activeTenant }: { activeTenant?: any }) {
   const navigation = useNavigation<any>();
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -23,250 +17,132 @@ export default function TenantPaymentScreen({ activeTenant }: TenantPaymentScree
     if (!activeTenant) return;
     setLoading(true);
     try {
-      const allPayments = await paymentService.getAll();
-      const myPayments = (allPayments || []).filter(p => p.tenant_id === activeTenant.id);
-      myPayments.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-      
-      setTransactions(myPayments);
-
-      const due = myPayments.find(p => p.status === 'pending');
-      if (due) {
-        setAmountDue(due.amount);
-        setActiveDuePayment(due);
-      } else {
-        setAmountDue(0);
-        setActiveDuePayment(null);
-      }
-    } catch (e) {
-      console.log('Error fetching tenant payments', e);
+      const all = await paymentService.getAll(activeTenant.property_id);
+      const my = (all || []).filter(p => p.tenant_id === activeTenant.id);
+      my.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      setTransactions(my);
+      const due = my.find(p => p.status === 'pending');
+      setAmountDue(due ? due.amount : 0);
+      setActiveDuePayment(due || null);
     } finally {
       setLoading(false);
     }
   }, [activeTenant]);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchData();
-    }, [fetchData])
-  );
+  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
 
-  const handlePay = async () => {
+  const handlePay = () => {
     if (!activeDuePayment) return;
-    
-    Alert.alert(
-      'Process Payment', 
-      `Confirm payment of Rs ${amountDue.toLocaleString('en-IN')} for ${activeDuePayment.month || 'rent'}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Pay Now', 
-          onPress: async () => {
-            try {
-               await paymentService.markPaid(activeDuePayment.id, 'UPI');
-               Alert.alert('Success', 'Payment processed successfully.');
-               fetchData();
-            } catch (e) {
-               Alert.alert('Error', 'Payment failed.');
-            }
-          }
-        }
-      ]
-    );
+    Alert.alert('Confirm Payment', `Pay ₹${amountDue.toLocaleString('en-IN')} via UPI?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Pay Now', onPress: async () => {
+        try {
+          await paymentService.markPaid(activeDuePayment.id, 'UPI');
+          fetchData();
+          Alert.alert('Success', 'Payment confirmed!');
+        } catch (e) { Alert.alert('Error', 'Failed to process'); }
+      }}
+    ]);
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={theme.colors.onSurface} />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Payments</Text>
-          <Text style={styles.subtitle}>RENT AND DEPOSIT TRACKER</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={24} color="#1e293b" />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>Payments</Text>
+            <Text style={styles.subtitle}>History & Dues</Text>
+          </View>
         </View>
-      </View>
 
-      {loading ? (
-        <ActivityIndicator color={theme.colors.primary} size="large" style={{ marginVertical: 30 }} />
-      ) : (
-        <>
-          <TonalCard level="lowest" style={styles.balanceCard}>
-            <Text style={styles.balanceLabel}>Amount Due</Text>
-            <Text style={styles.balanceValue}>Rs {amountDue.toLocaleString('en-IN')}</Text>
-
-            <View style={styles.metaRow}>
-              <Text style={styles.metaText}>{amountDue > 0 ? `Due for ${activeDuePayment?.month || 'Current'}` : 'All dues cleared'}</Text>
-              <StatusBadge status={amountDue > 0 ? 'pending' : 'occupied'} label={amountDue > 0 ? 'Pending' : 'Cleared'} />
+        <LinearGradient colors={['#4f46e5', '#6366f1']} style={styles.dueCard}>
+          <View style={styles.dueTop}>
+            <View>
+              <Text style={styles.dueLabel}>TOTAL AMOUNT DUE</Text>
+              <Text style={styles.dueValue}>₹{amountDue.toLocaleString('en-IN')}</Text>
             </View>
-
+            <View style={styles.dueBadge}>
+              <Text style={styles.dueBadgeText}>{amountDue > 0 ? 'Pending' : 'Cleared'}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.dueBottom}>
+            <Text style={styles.dueDate}>
+              {amountDue > 0 ? `Due by ${activeDuePayment?.due_date ? new Date(activeDuePayment.due_date).toLocaleDateString() : activeDuePayment?.month}` : 'No upcoming dues'}
+            </Text>
             {amountDue > 0 && (
-              <RentifyButton title="Pay Now" onPress={handlePay} style={styles.payBtn} />
-            )}
-          </TonalCard>
-
-          <Text style={styles.sectionTitle}>Recent Transactions</Text>
-          <View style={styles.list}>
-            {transactions.length === 0 ? (
-              <Text style={{color: theme.colors.onSurfaceVariant, fontSize: 13, marginTop: 10}}>No transactions found.</Text>
-            ) : (
-              transactions.map((tx) => (
-                <TonalCard key={tx.id} level="lowest" style={styles.txCard}>
-                  <View style={styles.txTopRow}>
-                    <View>
-                      <Text style={styles.txTitle}>{tx.month ? `${tx.month} Rent` : 'Payment'}</Text>
-                      <Text style={styles.txMeta}>{tx.id.substring(0,8)} - {tx.created_at ? new Date(tx.created_at).toLocaleDateString('en-IN') : ''}</Text>
-                    </View>
-                    <Text style={styles.txAmount}>Rs {Number(tx.amount || 0).toLocaleString('en-IN')}</Text>
-                  </View>
-
-                  <View style={styles.txBottomRow}>
-                    <Text style={styles.txMethod}>{tx.status === 'paid' ? 'UPI' : 'Not paid'}</Text>
-                    <StatusBadge status={tx.status === 'paid' ? 'occupied' : 'pending'} label={tx.status === 'paid' ? 'Paid' : 'Pending'} />
-                  </View>
-                </TonalCard>
-              ))
+              <TouchableOpacity style={styles.payBtn} onPress={handlePay}>
+                <Text style={styles.payBtnText}>Settle Now</Text>
+              </TouchableOpacity>
             )}
           </View>
-        </>
-      )}
+        </LinearGradient>
 
-      <TonalCard level="low" style={styles.tipCard} floating={false}>
-        <View style={styles.tipRow}>
-          <Ionicons name="information-circle-outline" size={18} color={theme.colors.primary} />
-          <Text style={styles.tipTitle}>Payment reminder</Text>
+        <Text style={styles.sectionTitle}>Transaction History</Text>
+        <View style={styles.list}>
+          {loading ? (
+            <ActivityIndicator color="#4f46e5" style={{ marginTop: 20 }} />
+          ) : transactions.length === 0 ? (
+            <Text style={styles.emptyText}>No payments recorded yet.</Text>
+          ) : (
+            transactions.map((tx) => (
+              <View key={tx.id} style={styles.txCard}>
+                <View style={styles.txIcon}>
+                  <Ionicons name={tx.status === 'paid' ? "checkmark-circle" : "time"} size={20} color={tx.status === 'paid' ? "#10b981" : "#f59e0b"} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.txTitle}>{tx.month || 'Rent Payment'}</Text>
+                  <Text style={styles.txMeta}>{new Date(tx.created_at).toLocaleDateString()} • {tx.method || 'UPI'}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={[styles.txAmt, { color: tx.status === 'paid' ? "#10b981" : "#1e293b" }]}>₹{tx.amount}</Text>
+                  <Text style={[styles.txStatus, { color: tx.status === 'paid' ? "#10b981" : "#f59e0b" }]}>{tx.status.toUpperCase()}</Text>
+                </View>
+              </View>
+            ))
+          )}
         </View>
-        <Text style={styles.tipBody}>Pay before the due date to avoid late fees and keep your account in good standing.</Text>
-      </TonalCard>
-    </ScrollView>
+
+        <View style={styles.infoBox}>
+          <Ionicons name="information-circle" size={20} color="#6366f1" />
+          <Text style={styles.infoText}>All payments are encrypted and processed securely through our partners.</Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: 36,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: theme.spacing.xl,
-    marginBottom: theme.spacing.xl,
-  },
-  backBtn: {
-    padding: 8,
-    marginRight: 8,
-  },
-  title: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 30,
-    color: theme.colors.onSurface,
-  },
-  subtitle: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 11,
-    letterSpacing: 1.6,
-    color: theme.colors.onSurfaceVariant,
-    marginTop: 4,
-  },
-  balanceCard: {
-    marginBottom: theme.spacing.xl,
-  },
-  balanceLabel: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 1.1,
-    color: theme.colors.onSurfaceVariant,
-  },
-  balanceValue: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 44,
-    color: theme.colors.primary,
-    marginTop: 6,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  metaText: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 14,
-    color: theme.colors.onSurfaceVariant,
-  },
-  payBtn: {
-    marginTop: theme.spacing.lg,
-  },
-  sectionTitle: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 20,
-    color: theme.colors.onSurface,
-    marginBottom: theme.spacing.md,
-  },
-  list: {
-    marginBottom: theme.spacing.xl,
-  },
-  txCard: {
-    marginBottom: 10,
-    padding: theme.spacing.md,
-  },
-  txTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  txTitle: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 15,
-    color: theme.colors.onSurface,
-    maxWidth: 210,
-  },
-  txMeta: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 12,
-    color: theme.colors.onSurfaceVariant,
-    marginTop: 3,
-  },
-  txAmount: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 16,
-    color: theme.colors.secondary,
-    marginLeft: 8,
-  },
-  txBottomRow: {
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  txMethod: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 12,
-    color: theme.colors.onSurfaceVariant,
-  },
-  tipCard: {
-    padding: theme.spacing.lg,
-  },
-  tipRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  tipTitle: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 14,
-    color: theme.colors.onSurface,
-    marginLeft: 8,
-  },
-  tipBody: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 13,
-    color: theme.colors.onSurfaceVariant,
-    lineHeight: 20,
-  },
+  safeArea: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1 },
+  content: { padding: 20, paddingBottom: 40 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 28, marginTop: 10 },
+  backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginRight: 12, elevation: 2 },
+  title: { fontSize: 24, fontWeight: '800', color: '#1e293b' },
+  subtitle: { fontSize: 13, color: '#64748b', marginTop: 2 },
+  dueCard: { borderRadius: 32, padding: 28, marginBottom: 32, elevation: 8, shadowColor: '#4f46e5', shadowOpacity: 0.3, shadowRadius: 15 },
+  dueTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  dueLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '800', letterSpacing: 1 },
+  dueValue: { color: '#fff', fontSize: 38, fontWeight: '800', marginTop: 4 },
+  dueBadge: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  dueBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  dueBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' },
+  dueDate: { color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: '500' },
+  payBtn: { backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12 },
+  payBtnText: { color: '#4f46e5', fontWeight: '800', fontSize: 13 },
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#1e293b', marginBottom: 16 },
+  list: { gap: 12, marginBottom: 24 },
+  txCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 18, borderRadius: 24, borderWidth: 1, borderColor: '#f1f5f9' },
+  txIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  txTitle: { fontSize: 15, fontWeight: '700', color: '#1e293b' },
+  txMeta: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+  txAmt: { fontSize: 15, fontWeight: '800' },
+  txStatus: { fontSize: 10, fontWeight: '800', marginTop: 4 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', paddingVertical: 30, fontStyle: 'italic' },
+  infoBox: { flexDirection: 'row', gap: 12, backgroundColor: '#eef2ff', padding: 16, borderRadius: 20, alignItems: 'center' },
+  infoText: { flex: 1, fontSize: 12, color: '#4338ca', lineHeight: 18 }
 });

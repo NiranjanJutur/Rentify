@@ -23,10 +23,12 @@ import { OwnerProfileScreen } from '../screens/owner/OwnerProfileScreen';
 import { CreateNoticeScreen } from '../screens/owner/CreateNoticeScreen';
 import { LogComplaintScreen } from '../screens/owner/LogComplaintScreen';
 import { RoomOverviewScreen } from '../screens/owner/RoomOverviewScreen';
+import { OwnerMealManagementScreen } from '../screens/owner/OwnerMealManagementScreen';
 import TenantDashboardScreen from '../screens/tenant/TenantDashboardScreen';
 import TenantMealScreen from '../screens/tenant/TenantMealScreen';
 import TenantPaymentScreen from '../screens/tenant/TenantPaymentScreen';
 import TenantProfileScreen from '../screens/tenant/TenantProfileScreen';
+import TenantSupportScreen from '../screens/tenant/TenantSupportScreen';
 import { AUTH_REDIRECT_URL, supabase } from '../utils/supabase';
 import { theme } from '../theme/theme';
 
@@ -200,6 +202,7 @@ export const AppNavigator = () => {
             <Stack.Screen name="CreateNotice" component={CreateNoticeScreen} />
             <Stack.Screen name="LogComplaint" component={LogComplaintScreen} />
             <Stack.Screen name="RoomOverview" component={RoomOverviewScreen} />
+            <Stack.Screen name="OwnerMealManagement" component={OwnerMealManagementScreen} />
             {portalMode !== 'tenant' ? (
               <Stack.Screen name="TenantDashboard">
                 {(props) => <TenantDashboardScreen {...props} activeTenant={activeTenant} />}
@@ -213,6 +216,9 @@ export const AppNavigator = () => {
             </Stack.Screen>
             <Stack.Screen name="TenantProfile">
                {(props) => <TenantProfileScreen {...props} activeTenant={activeTenant} />}
+            </Stack.Screen>
+            <Stack.Screen name="TenantSupport">
+               {(props) => <TenantSupportScreen {...props} activeTenant={activeTenant} />}
             </Stack.Screen>
           </>
         )}

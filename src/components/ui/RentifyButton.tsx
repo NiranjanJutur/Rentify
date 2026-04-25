@@ -11,23 +11,23 @@ interface RentifyButtonProps {
   disabled?: boolean;
 }
 
-export const RentifyButton: React.FC<RentifyButtonProps> = ({ 
-  title, 
-  onPress, 
-  variant = 'primary', 
+export const RentifyButton: React.FC<RentifyButtonProps> = ({
+  title,
+  onPress,
+  variant = 'primary',
   style,
   disabled = false
 }) => {
   if (variant === 'primary') {
     return (
-      <TouchableOpacity 
-        onPress={onPress} 
-        activeOpacity={0.8} 
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.8}
         disabled={disabled}
         style={[styles.container, style, disabled && { opacity: 0.6 }]}
       >
         <LinearGradient
-          colors={[theme.colors.primary, theme.colors.primaryContainer]}
+          colors={['#4f46e5', '#6366f1']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradient}
@@ -41,12 +41,12 @@ export const RentifyButton: React.FC<RentifyButtonProps> = ({
   const isGlass = variant === 'glass';
 
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
-      activeOpacity={0.7} 
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
       disabled={disabled}
       style={[
-        styles.secondaryContainer, 
+        styles.secondaryContainer,
         isGlass && styles.glassContainer,
         disabled && { opacity: 0.6 },
         style
@@ -59,36 +59,42 @@ export const RentifyButton: React.FC<RentifyButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 8,
+    borderRadius: 16,
     overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#4f46e5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   gradient: {
-    paddingVertical: 16,
-    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryText: {
-    fontFamily: theme.typography.label.fontFamily,
-    color: theme.colors.onPrimary,
+    color: '#fff',
     fontSize: 16,
-    letterSpacing: 0,
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
   secondaryContainer: {
-    paddingVertical: 14,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: 8,
-    backgroundColor: theme.colors.surfaceContainerHigh + '66', // 40% opacity
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
   },
   glassContainer: {
-    backgroundColor: theme.colors.surfaceContainerLowest + 'CC', // 80% opacity
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   secondaryText: {
-    fontFamily: theme.typography.label.fontFamily,
-    color: theme.colors.primary,
+    color: '#1e293b',
     fontSize: 15,
-    letterSpacing: 0,
+    fontWeight: '700',
   },
 });

@@ -131,6 +131,7 @@ export const tenantService = {
     floor?: number;
     rent_amount?: number;
     advance_amount?: number;
+    payment_due_day?: number;
     status?: string;
     aadhaar_id?: string;
     aadhaar_front_url?: string;
@@ -152,16 +153,33 @@ export const tenantService = {
     if (record?.status && record.status === 'occupied' && record.phone !== tenant.phone) {
       throw new Error(`Room ${tenant.room} is currently occupied by another tenant.`);
     }
-    const { data, error } = await supabase
-      .from('tenants')
-      .upsert({
-        ...tenant,
-        status: tenant.status || 'pending',
-      }, {
-        onConflict: 'property_id,room'
-      })
-      .select()
-      .single();
+    let data: any;
+    let error: any;
+
+    if (record) {
+      // Update the existing tenant record for this room
+      ({ data, error } = await supabase
+        .from('tenants')
+        .update({
+          ...tenant,
+          status: tenant.status || 'pending',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', record.id)
+        .select()
+        .single());
+    } else {
+      // Insert a new tenant record
+      ({ data, error } = await supabase
+        .from('tenants')
+        .insert([{
+          ...tenant,
+          status: tenant.status || 'pending',
+        }])
+        .select()
+        .single());
+    }
+
     if (error) throw error;
     return data;
   },
@@ -293,7 +311,7 @@ export const paymentService = {
   async getAll(propertyId?: string) {
     let query = supabase
       .from('payments')
-      .select('*, tenants(name, room, block)')
+      .select('*, tenants(name, room, block, phone, payment_due_day)')
       .order('created_at', { ascending: false });
     if (propertyId) query = query.eq('property_id', propertyId);
     const { data, error } = await query;
@@ -325,6 +343,17 @@ export const paymentService = {
     const { data, error } = await supabase
       .from('payments')
       .insert([payment])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Record<string, any>) {
+    const { data, error } = await supabase
+      .from('payments')
+      .update(updates)
+      .eq('id', id)
       .select()
       .single();
     if (error) throw error;
@@ -450,6 +479,83 @@ export const noticeService = {
     if (error) throw error;
     return data;
   },
+};
+
+// ============================================
+// MEALS
+// ============================================
+export const mealService = {
+  async submitVote(vote: {
+    tenant_id: string;
+    property_id: string;
+    meal_type: 'breakfast' | 'lunch' | 'dinner';
+    response: 'yes' | 'no';
+    date: string;
+  }) {
+    // Upsert the vote for this tenant/meal/date
+    const { data, error } = await supabase
+      .from('meal_responses')
+      .upsert([vote], { onConflict: 'tenant_id,meal_type,date' })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getTodayVotes(propertyId: string, date: string) {
+    const { data, error } = await supabase
+      .from('meal_responses')
+      .select('meal_type, response')
+      .eq('property_id', propertyId)
+      .eq('date', date);
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getTenantVotesForDate(tenantId: string, date: string) {
+    const { data, error } = await supabase
+      .from('meal_responses')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .eq('date', date);
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getDailyMenu(propertyId: string, date: string) {
+    const { data, error } = await supabase
+      .from('daily_menus')
+      .select('*')
+      .eq('property_id', propertyId)
+      .eq('date', date)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "No rows found"
+    return data;
+  },
+
+  async updateDailyMenu(menu: {
+    property_id: string;
+    date: string;
+    breakfast?: string;
+    lunch?: string;
+    dinner?: string;
+    breakfast_time?: string;
+    lunch_time?: string;
+    dinner_time?: string;
+  }) {
+    const { data, error } = await supabase
+      .from('daily_menus')
+      .upsert([menu], { onConflict: 'property_id,date' })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
 };
 
 // ============================================

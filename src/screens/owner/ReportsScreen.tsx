@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { TonalCard } from '../../components/ui/TonalCard';
@@ -84,6 +84,18 @@ export const ReportsScreen = () => {
     { label: 'Payroll Forecast', value: `Rs ${metrics.payrollForecast.toLocaleString('en-IN')}`, tone: theme.colors.primary },
   ];
 
+  const handleShareReportPack = async () => {
+    try {
+      await Share.share({
+        message: `Rentify report summary\nCashflow: Rs ${metrics.cashflow.toLocaleString('en-IN')}\nCollection Rate: ${metrics.collectionRate}\nVacant Rooms: ${metrics.vacantCount}\nOpen Maintenance: ${metrics.openComplaints}\nPayroll Forecast: Rs ${metrics.payrollForecast.toLocaleString('en-IN')}`,
+      });
+    } catch (error: any) {
+      if (error?.message !== 'User did not share') {
+        Alert.alert('Could Not Share', error.message || 'Please try again.');
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -136,7 +148,7 @@ export const ReportsScreen = () => {
               </TonalCard>
             ))}
 
-            <RentifyButton title="Download Report Pack" onPress={() => Alert.alert('Report Pack Ready', 'Financial, occupancy, and maintenance reports are ready to download.')} style={styles.submit} />
+            <RentifyButton title="Share Report Summary" onPress={handleShareReportPack} style={styles.submit} />
           </>
         )}
       </ScrollView>

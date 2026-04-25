@@ -1,294 +1,148 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { theme } from '../../theme/theme';
-import { RentifyButton } from '../../components/ui/RentifyButton';
-import { TonalCard } from '../../components/ui/TonalCard';
-import { StatusBadge } from '../../components/ui/StatusBadge';
-import { paymentService, noticeService } from '../../services/dataService';
+import { paymentService, noticeService, authService } from '../../services/dataService';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-type TenantDashboardScreenProps = {
-  activeTenant?: any;
-};
-
-export default function TenantDashboardScreen({ activeTenant }: TenantDashboardScreenProps) {
+export default function TenantDashboardScreen({ activeTenant }: { activeTenant?: any }) {
   const navigation = useNavigation<any>();
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState(0);
   const [dueMonth, setDueMonth] = useState('N/A');
   const [latestNotice, setLatestNotice] = useState<any>(null);
 
-  const fetchDashboardData = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     if (!activeTenant) return;
     setLoading(true);
     try {
+      const propertyId = activeTenant.property_id;
       const [payments, notices] = await Promise.all([
-        paymentService.getAll(),
-        noticeService.getAll()
+        paymentService.getAll(propertyId),
+        noticeService.getAll(propertyId)
       ]);
-
       const myPayments = (payments || []).filter(p => p.tenant_id === activeTenant.id);
-      const pendingPayment = myPayments.find(p => p.status === 'pending') || null;
-
-      if (pendingPayment) {
-        setBalance(pendingPayment.amount);
-        setDueMonth(pendingPayment.month || 'Current');
-      } else {
-        setBalance(0);
-        setDueMonth('No current dues');
-      }
-
+      const pending = myPayments.find(p => p.status === 'pending');
+      setBalance(pending ? pending.amount : 0);
+      setDueMonth(pending ? pending.month : 'No dues');
       setLatestNotice((notices || [])[0] || null);
-
     } catch (e) {
-      console.log('Error fetching tenant dashboard data', e);
+      console.log(e);
     } finally {
       setLoading(false);
     }
   }, [activeTenant]);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchDashboardData();
-    }, [fetchDashboardData])
-  );
+  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
 
-  const tenantName = activeTenant?.name || 'Resident';
-  const tenantInitials = tenantName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Logout from Rentify?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log Out', style: 'destructive', onPress: () => authService.signOut() }
+    ]);
+  };
 
   const quickAccess = [
-    {
-      title: 'Meals',
-      subtitle: 'Daily schedule',
-      icon: 'restaurant-outline' as const,
-      route: 'TenantMeal',
-      tint: theme.colors.primary,
-    },
-    {
-      title: 'Payments',
-      subtitle: balance > 0 ? '1 due this month' : 'All clear',
-      icon: 'wallet-outline' as const,
-      route: 'TenantPayment',
-      tint: theme.colors.secondary,
-    },
-    {
-      title: 'Support',
-      subtitle: 'Raise issues',
-      icon: 'construct-outline' as const,
-      route: 'TenantProfile',
-      tint: '#ba1a1a',
-    },
-    {
-      title: 'Profile',
-      subtitle: `Room: ${activeTenant?.room || 'N/A'}`,
-      icon: 'person-outline' as const,
-      route: 'TenantProfile',
-      tint: theme.colors.primaryContainer,
-    },
+    { title: 'Meals', sub: 'Today\'s Menu', icon: 'restaurant', color: '#f59e0b', route: 'TenantMeal' },
+    { title: 'Payments', sub: balance > 0 ? 'Due' : 'Paid', icon: 'wallet', color: '#10b981', route: 'TenantPayment' },
+    { title: 'Support', sub: 'Raise Ticket', icon: 'construct', color: '#ef4444', route: 'TenantSupport' },
+    { title: 'Profile', sub: `Room ${activeTenant?.room}`, icon: 'person', color: '#6366f1', route: 'TenantProfile' },
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.name}>{tenantName}</Text>
-          <Text style={styles.subline}>{activeTenant?.room || ''} {activeTenant?.block ? `- ${activeTenant.block}` : ''}</Text>
-        </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{tenantInitials}</Text>
-        </View>
-      </View>
-
-      <TonalCard level="lowest" style={styles.balanceCard}>
-        {loading ? (
-           <ActivityIndicator size="small" color={theme.colors.primary} style={{marginVertical: 20}} />
-        ) : (
-          <>
-            <Text style={styles.balanceLabel}>Current Balance</Text>
-            <Text style={styles.balanceValue}>Rs {balance.toLocaleString('en-IN')}</Text>
-
-            <View style={styles.balanceMetaRow}>
-              <Text style={styles.dueText}>{balance > 0 ? `Due for ${dueMonth}` : 'No upcoming dues'}</Text>
-              <StatusBadge status={balance > 0 ? 'pending' : 'occupied'} label={balance > 0 ? 'Pending' : 'Cleared'} />
-            </View>
-
-            <RentifyButton 
-              title={balance > 0 ? "Settle Balance" : "View Payment History"} 
-              onPress={() => navigation.navigate('TenantPayment')} 
-              style={styles.balanceBtn} 
-              variant={balance > 0 ? 'primary' : 'secondary'}
-            />
-          </>
-        )}
-      </TonalCard>
-
-      <Text style={styles.sectionTitle}>Quick Access</Text>
-      <View style={styles.grid}>
-        {quickAccess.map((item) => (
-          <TouchableOpacity
-            key={item.title}
-            style={styles.gridCard}
-            activeOpacity={0.75}
-            onPress={() => navigation.navigate(item.route)}
-          >
-            <View style={[styles.iconWrap, { backgroundColor: item.tint + '1A' }]}>
-              <Ionicons name={item.icon} size={20} color={item.tint} />
-            </View>
-            <Text style={styles.gridTitle}>{item.title}</Text>
-            <Text style={styles.gridSubtitle}>{item.subtitle}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {latestNotice && (
-        <TonalCard level="low" style={styles.noticeCard} floating={false}>
-          <View style={styles.noticeRow}>
-            <Ionicons name={latestNotice.pinned ? "megaphone" : "notifications-outline"} size={18} color={theme.colors.primary} />
-            <Text style={styles.noticeTitle}>{latestNotice.title}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Good Morning,</Text>
+            <Text style={styles.name}>{activeTenant?.name?.split(' ')[0] || 'Resident'}</Text>
           </View>
-          <Text style={styles.noticeBody} numberOfLines={2}>{latestNotice.body}</Text>
-        </TonalCard>
-      )}
-    </ScrollView>
+          <TouchableOpacity onPress={handleSignOut} style={styles.logoutBtn}>
+            <Ionicons name="log-out-outline" size={22} color="#64748b" />
+          </TouchableOpacity>
+        </View>
+
+        <LinearGradient colors={['#1e293b', '#0f172a']} style={styles.heroCard}>
+          <View style={styles.heroTop}>
+            <View>
+              <Text style={styles.heroLabel}>CURRENT BALANCE</Text>
+              <Text style={styles.heroValue}>₹{balance.toLocaleString('en-IN')}</Text>
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: balance > 0 ? '#fef3c7' : '#dcfce7' }]}>
+              <Text style={[styles.statusText, { color: balance > 0 ? '#92400e' : '#166534' }]}>
+                {balance > 0 ? 'Pending' : 'All Clear'}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.heroBottom}>
+            <Text style={styles.dueInfo}>{balance > 0 ? `Due for ${dueMonth}` : 'Great! No upcoming dues.'}</Text>
+            <TouchableOpacity style={styles.payBtn} onPress={() => navigation.navigate('TenantPayment')}>
+              <Text style={styles.payBtnText}>{balance > 0 ? 'Pay Now' : 'History'}</Text>
+              <Ionicons name="chevron-forward" size={14} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+
+        <Text style={styles.sectionTitle}>Quick Access</Text>
+        <View style={styles.grid}>
+          {quickAccess.map((item) => (
+            <TouchableOpacity key={item.title} style={styles.gridCard} onPress={() => navigation.navigate(item.route)}>
+              <View style={[styles.iconBox, { backgroundColor: item.color + '10' }]}>
+                <Ionicons name={item.icon as any} size={22} color={item.color} />
+              </View>
+              <Text style={styles.gridTitle}>{item.title}</Text>
+              <Text style={styles.gridSub}>{item.sub}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {latestNotice && (
+          <TouchableOpacity style={styles.noticeBar} onPress={() => navigation.navigate('TenantNoticeBoard')}>
+            <View style={styles.noticeIcon}>
+              <Ionicons name="megaphone" size={18} color="#4f46e5" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.noticeLabel}>LATEST NOTICE</Text>
+              <Text style={styles.noticeTitle} numberOfLines={1}>{latestNotice.title}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: 36,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: theme.spacing.xl,
-    marginBottom: theme.spacing.xl,
-  },
-  greeting: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 14,
-    color: theme.colors.onSurfaceVariant,
-  },
-  name: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 30,
-    color: theme.colors.primary,
-    marginTop: 2,
-  },
-  subline: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 12,
-    color: theme.colors.onSurfaceVariant,
-    marginTop: 6,
-    letterSpacing: 0.5,
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.primaryContainer,
-  },
-  avatarText: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 16,
-    color: theme.colors.onPrimary,
-  },
-  balanceCard: {
-    marginBottom: theme.spacing.xl,
-  },
-  balanceLabel: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 11,
-    color: theme.colors.onSurfaceVariant,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-  balanceValue: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 46,
-    color: theme.colors.primary,
-    marginTop: 6,
-  },
-  balanceMetaRow: {
-    marginTop: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  dueText: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 14,
-    color: theme.colors.onSurfaceVariant,
-  },
-  balanceBtn: {
-    marginTop: theme.spacing.lg,
-  },
-  sectionTitle: {
-    fontFamily: theme.typography.headline.fontFamily,
-    fontSize: 21,
-    color: theme.colors.onSurface,
-    marginBottom: theme.spacing.md,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.xl,
-  },
-  gridCard: {
-    width: '48%',
-    backgroundColor: theme.colors.surfaceContainerLow,
-    borderRadius: 20,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-  },
-  iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  gridTitle: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 14,
-    color: theme.colors.onSurface,
-  },
-  gridSubtitle: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 12,
-    color: theme.colors.onSurfaceVariant,
-    marginTop: 4,
-    lineHeight: 18,
-  },
-  noticeCard: {
-    padding: theme.spacing.lg,
-  },
-  noticeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  noticeTitle: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 14,
-    color: theme.colors.onSurface,
-    marginLeft: 8,
-  },
-  noticeBody: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 13,
-    color: theme.colors.onSurfaceVariant,
-    lineHeight: 20,
-  },
+  safeArea: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1 },
+  content: { padding: 20, paddingBottom: 40 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, marginTop: 10 },
+  greeting: { fontSize: 14, color: '#64748b', fontWeight: '500' },
+  name: { fontSize: 32, fontWeight: '800', color: '#1e293b', marginTop: 2 },
+  logoutBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', elevation: 2 },
+  heroCard: { borderRadius: 32, padding: 28, marginBottom: 32, elevation: 8, shadowColor: '#1e293b', shadowOpacity: 0.2, shadowRadius: 15 },
+  heroTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  heroLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: '800', letterSpacing: 1 },
+  heroValue: { color: '#fff', fontSize: 42, fontWeight: '800', marginTop: 4 },
+  statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  statusText: { fontSize: 12, fontWeight: '700' },
+  heroBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 32, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' },
+  dueInfo: { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500' },
+  payBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#4f46e5', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12 },
+  payBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  sectionTitle: { fontSize: 20, fontWeight: '800', color: '#1e293b', marginBottom: 20 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginBottom: 32 },
+  gridCard: { width: '47.5%', backgroundColor: '#fff', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#f1f5f9', elevation: 2 },
+  iconBox: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  gridTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
+  gridSub: { fontSize: 12, color: '#64748b', marginTop: 4 },
+  noticeBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 16, borderRadius: 24, borderWidth: 1, borderColor: '#f1f5f9', gap: 16 },
+  noticeIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#eef2ff', alignItems: 'center', justifyContent: 'center' },
+  noticeLabel: { fontSize: 10, fontWeight: '800', color: '#4f46e5', letterSpacing: 1 },
+  noticeTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b', marginTop: 2 }
 });

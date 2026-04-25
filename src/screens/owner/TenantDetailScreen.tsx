@@ -1,472 +1,234 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Linking, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { RentifyButton } from '../../components/ui/RentifyButton';
 import { StatusBadge, StatusType } from '../../components/ui/StatusBadge';
-import { TonalCard } from '../../components/ui/TonalCard';
 import { paymentService, tenantService } from '../../services/dataService';
 import { theme } from '../../theme/theme';
-
-type TenantDetailRoute = {
-  params?: {
-    tenant?: any;
-    tenantId?: string;
-  };
-};
+import { LinearGradient } from 'expo-linear-gradient';
 
 export const TenantDetailScreen = () => {
   const navigation = useNavigation<any>();
-  const route = useRoute<any>() as TenantDetailRoute;
+  const route = useRoute<any>();
   const [tenant, setTenant] = useState<any>(route.params?.tenant || null);
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(!route.params?.tenant);
-  const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [approving, setApproving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    room: '',
-    block: '',
-    floor: '1',
-    rent_amount: '',
-    advance_amount: '',
-    status: 'occupied',
+    name: '', phone: '', email: '', room: '', block: '', floor: '1', rent_amount: '', advance_amount: '', payment_due_day: '5', status: 'occupied',
   });
 
   const tenantId = route.params?.tenantId || route.params?.tenant?.id;
+  const propertyId = route.params?.tenant?.property_id || tenant?.property_id;
 
-  const fetchTenantDetails = useCallback(async () => {
-    if (!tenantId) return;
-
+  const fetchDetails = useCallback(async () => {
+    if (!tenantId || !propertyId) return;
     try {
       setLoading(true);
       const [allTenants, allPayments] = await Promise.all([
-        tenantService.getAll(),
-        paymentService.getAll(),
+        tenantService.getAll(propertyId),
+        paymentService.getAll(propertyId),
       ]);
       const nextTenant = (allTenants || []).find((item: any) => item.id === tenantId);
-      const tenantPayments = (allPayments || []).filter((item: any) => item.tenant_id === tenantId);
-      setTenant(nextTenant || route.params?.tenant || null);
-      setPayments(tenantPayments);
-    } catch (error) {
-      console.log('Tenant detail fetch error:', error);
+      setTenant(nextTenant || tenant);
+      setPayments((allPayments || []).filter((p: any) => p.tenant_id === tenantId));
     } finally {
       setLoading(false);
     }
-  }, [tenantId, route.params?.tenant]);
+  }, [tenantId, propertyId]);
 
-  useEffect(() => {
-    fetchTenantDetails();
-  }, [fetchTenantDetails]);
+  useEffect(() => { fetchDetails(); }, [fetchDetails]);
 
   useEffect(() => {
     if (!tenant) return;
-
     setForm({
-      name: tenant.name || '',
-      phone: tenant.phone || '',
-      email: tenant.email || '',
-      room: tenant.room || '',
-      block: tenant.block || '',
-      floor: String(tenant.floor || 1),
-      rent_amount: String(tenant.rent_amount || ''),
-      advance_amount: String(tenant.advance_amount || ''),
-      status: tenant.status || 'occupied',
+      name: tenant.name || '', phone: tenant.phone || '', email: tenant.email || '',
+      room: tenant.room || '', block: tenant.block || '', floor: String(tenant.floor || 1),
+      rent_amount: String(tenant.rent_amount || ''), advance_amount: String(tenant.advance_amount || ''),
+      payment_due_day: String(tenant.payment_due_day || 5), status: tenant.status || 'occupied',
     });
   }, [tenant]);
 
-  const updateForm = (field: keyof typeof form, value: string) => {
-    setForm((current) => ({ ...current, [field]: value }));
-  };
-
   const handleUpdate = async () => {
     if (!tenant?.id) return;
-    if (!form.name.trim() || !form.room.trim()) {
-      Alert.alert('Missing Details', 'Tenant name and room are required.');
-      return;
-    }
-
     setSaving(true);
     try {
-      const updatedTenant = await tenantService.update(tenant.id, {
-        name: form.name.trim(),
-        phone: form.phone.trim(),
-        email: form.email.trim().toLowerCase(),
-        room: form.room.trim(),
-        block: form.block.trim(),
-        floor: Number(form.floor) || 1,
-        rent_amount: Number(form.rent_amount) || 0,
-        advance_amount: Number(form.advance_amount) || 0,
-        status: form.status.trim() || 'occupied',
+      const updated = await tenantService.update(tenant.id, {
+        ...form, floor: Number(form.floor), rent_amount: Number(form.rent_amount),
+        advance_amount: Number(form.advance_amount), payment_due_day: Number(form.payment_due_day)
       });
-      setTenant(updatedTenant);
+      setTenant(updated);
       setEditing(false);
-      Alert.alert('Tenant Updated', `${updatedTenant.name} has been updated.`);
-    } catch (error: any) {
-      Alert.alert('Could Not Update Tenant', error.message || error.details || error.hint || 'Please try again.');
+      Alert.alert('Success', 'Tenant profile updated');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = () => {
-    if (!tenant?.id) return;
-
-    const performDelete = async () => {
-      setDeleting(true);
-      try {
-        await tenantService.delete(tenant.id);
-        if (typeof window !== 'undefined') {
-          window.alert(`${tenant.name} has been removed.`);
-          navigation.goBack();
-        } else {
-          Alert.alert('Tenant Deleted', `${tenant.name} has been removed.`, [
-            { text: 'Done', onPress: () => navigation.goBack() },
-          ]);
-        }
-      } catch (error: any) {
-        if (typeof window !== 'undefined') {
-          window.alert(error.message || 'Please try again.');
-        } else {
-          Alert.alert('Could Not Delete', error.message || 'Please try again.');
-        }
-      } finally {
-        setDeleting(false);
-      }
-    };
-
-    if (typeof window !== 'undefined' && window.confirm) {
-      if (window.confirm(`Delete ${tenant.name}? This will remove the tenant profile from the property.`)) {
-        performDelete();
-      }
-    } else {
-      Alert.alert(
-        'Delete Tenant',
-        `Delete ${tenant.name}? This will remove the tenant profile from the property.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Delete', style: 'destructive', onPress: performDelete },
-        ]
-      );
-    }
-  };
-
   const handleApprove = async () => {
-    if (!tenant?.id) return;
-
     setApproving(true);
     try {
-      const updatedTenant = await tenantService.update(tenant.id, {
-        status: 'occupied',
-        paid: false,
-        join_date: tenant.join_date || new Date().toISOString().split('T')[0],
-      });
-      setTenant(updatedTenant);
-      setForm((current) => ({ ...current, status: 'occupied' }));
-      Alert.alert('Tenant Approved', `${updatedTenant.name} can now log in to the tenant portal.`);
-    } catch (error: any) {
-      Alert.alert('Approval Failed', error.message || error.details || error.hint || 'Please try again.');
+      const updated = await tenantService.update(tenant.id, { status: 'occupied' });
+      setTenant(updated);
+      Alert.alert('Approved', 'Tenant now has access');
     } finally {
       setApproving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <View style={[styles.safeArea, styles.center]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
-
-  if (!tenant) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>Tenant not found</Text>
-          <RentifyButton title="Back to Tenants" onPress={() => navigation.goBack()} />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  const status = (tenant.status || 'pending') as StatusType;
-  const joinDate = tenant.join_date
-    ? new Date(tenant.join_date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-    : 'Not recorded';
-  const paidPayments = payments.filter((payment) => payment.status === 'paid');
-  const pendingPayments = payments.filter((payment) => payment.status !== 'paid');
-  const totalPaid = paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-  const totalPending = pendingPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-
-  const historyRows = [
-    `${tenant.name} joined ${tenant.block || 'property'} in ${joinDate}.`,
-    tenant.paid ? 'Latest rent status marked paid.' : 'Rent collection is pending.',
-    `${payments.length} payment record${payments.length === 1 ? '' : 's'} linked to this tenant.`,
-  ];
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#4f46e5" /></View>;
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-            <Ionicons name="arrow-back" size={21} color={theme.colors.onSurface} />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={24} color="#1e293b" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Tenant Profile</Text>
-            <Text style={styles.subtitle}>DETAILS / TRANSACTIONS / HISTORY</Text>
+            <Text style={styles.title}>Profile</Text>
+            <Text style={styles.subtitle}>Tenant Management</Text>
           </View>
-          <TouchableOpacity style={styles.editIconButton} onPress={() => setEditing((value) => !value)} disabled={saving || deleting}>
-            <Ionicons name={editing ? 'close-outline' : 'create-outline'} size={20} color={theme.colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteIconButton} onPress={handleDelete} disabled={deleting}>
-            <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+          <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(!editing)}>
+            <Ionicons name={editing ? "close" : "create-outline"} size={22} color={editing ? "#ef4444" : "#4f46e5"} />
           </TouchableOpacity>
         </View>
 
-        <TonalCard level="lowest" style={styles.profileCard}>
-          <View style={styles.profileTop}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{tenant.name?.charAt(0)?.toUpperCase() || 'T'}</Text>
+        <View style={styles.profileSection}>
+          <View style={styles.avatarContainer}>
+            <LinearGradient colors={['#4f46e5', '#6366f1']} style={styles.avatar}>
+              <Text style={styles.avatarText}>{tenant.name[0]}</Text>
+            </LinearGradient>
+          </View>
+          <View style={{ alignItems: 'center', marginTop: 16 }}>
+            <Text style={styles.name}>{tenant.name}</Text>
+            <View style={styles.roomBadge}>
+              <Text style={styles.roomText}>Room {tenant.room} • {tenant.block}</Text>
             </View>
+          </View>
+
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.actionCircle} onPress={() => Linking.openURL(`tel:${tenant.phone}`)}>
+              <Ionicons name="call" size={20} color="#4f46e5" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCircle} onPress={() => Linking.openURL(`https://wa.me/${tenant.phone}`)}>
+              <Ionicons name="logo-whatsapp" size={20} color="#10b981" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCircle} onPress={() => Linking.openURL(`mailto:${tenant.email}`)}>
+              <Ionicons name="mail" size={20} color="#6366f1" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {tenant.status === 'pending' && (
+          <LinearGradient colors={['#fff7ed', '#ffedd5']} style={styles.approvalBox}>
+            <Ionicons name="alert-circle" size={24} color="#ea580c" />
             <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{tenant.name}</Text>
-              <Text style={styles.room}>{tenant.room} / {tenant.block || 'No block'}</Text>
-              <Text style={styles.joined}>Since {joinDate}</Text>
+              <Text style={styles.approvalTitle}>Pending Approval</Text>
+              <Text style={styles.approvalSub}>This tenant is waiting for property access.</Text>
             </View>
-            <StatusBadge status={status} />
+            <TouchableOpacity style={styles.approveBtn} onPress={handleApprove} disabled={approving}>
+              <Text style={styles.approveText}>Approve</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        )}
+
+        <View style={styles.metricsGrid}>
+          <View style={styles.metricCard}>
+            <Text style={styles.mLabel}>MONTHLY RENT</Text>
+            <Text style={styles.mValue}>₹{Number(tenant.rent_amount).toLocaleString('en-IN')}</Text>
           </View>
-        </TonalCard>
-
-        {tenant.status === 'pending' ? (
-          <TonalCard level="low" style={styles.approvalCard} floating={false}>
-            <View style={styles.approvalHeader}>
-              <View style={styles.approvalIcon}>
-                <Ionicons name="hourglass-outline" size={18} color={theme.colors.warning} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.approvalTitle}>Pending Owner Approval</Text>
-                <Text style={styles.approvalText}>
-                  Review the tenant details below, then approve this request to let the tenant access their account.
-                </Text>
-              </View>
-            </View>
-            <RentifyButton
-              title={approving ? 'Approving...' : 'Approve Tenant Access'}
-              onPress={handleApprove}
-              disabled={approving}
-              style={styles.approvalButton}
-            />
-          </TonalCard>
-        ) : null}
-
-        <View style={styles.summaryGrid}>
-          <TonalCard level="lowest" style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Monthly Rent</Text>
-            <Text style={styles.summaryValue}>Rs {Number(tenant.rent_amount || 0).toLocaleString('en-IN')}</Text>
-          </TonalCard>
-          <TonalCard level="lowest" style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Advance</Text>
-            <Text style={styles.summaryValue}>Rs {Number(tenant.advance_amount || 0).toLocaleString('en-IN')}</Text>
-          </TonalCard>
-        </View>
-
-        <View style={styles.summaryGrid}>
-          <TonalCard level="lowest" style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Pending</Text>
-            <Text style={[styles.summaryValue, { color: theme.colors.danger }]}>Rs {totalPending.toLocaleString('en-IN')}</Text>
-          </TonalCard>
-        </View>
-
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Details</Text>
-          <TouchableOpacity onPress={() => setEditing((value) => !value)} disabled={saving}>
-            <Text style={styles.sectionAction}>{editing ? 'Cancel' : 'Edit'}</Text>
-          </TouchableOpacity>
+          <View style={styles.metricCard}>
+            <Text style={styles.mLabel}>ADVANCE</Text>
+            <Text style={styles.mValue}>₹{Number(tenant.advance_amount).toLocaleString('en-IN')}</Text>
+          </View>
         </View>
 
         {editing ? (
-          <TonalCard level="lowest" style={styles.editCard}>
-            <Text style={styles.inputLabel}>Name</Text>
-            <TextInput style={styles.input} value={form.name} onChangeText={(value) => updateForm('name', value)} />
-            <Text style={styles.inputLabel}>Phone</Text>
-            <TextInput style={styles.input} value={form.phone} keyboardType="phone-pad" onChangeText={(value) => updateForm('phone', value)} />
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput style={styles.input} value={form.email} keyboardType="email-address" autoCapitalize="none" onChangeText={(value) => updateForm('email', value)} />
-            <View style={styles.inputRow}>
-              <View style={styles.inputHalf}>
-                <Text style={styles.inputLabel}>Room</Text>
-                <TextInput style={styles.input} value={form.room} onChangeText={(value) => updateForm('room', value)} />
-              </View>
-              <View style={styles.inputHalf}>
-                <Text style={styles.inputLabel}>Block</Text>
-                <TextInput style={styles.input} value={form.block} onChangeText={(value) => updateForm('block', value)} />
-              </View>
+          <View style={styles.formCard}>
+            <Text style={styles.formHeader}>Edit Details</Text>
+            <TextInput style={styles.input} placeholder="Name" value={form.name} onChangeText={v => setForm({...form, name: v})} />
+            <TextInput style={styles.input} placeholder="Phone" value={form.phone} keyboardType="phone-pad" onChangeText={v => setForm({...form, phone: v})} />
+            <View style={styles.row}>
+              <TextInput style={[styles.input, {flex: 1}]} placeholder="Room" value={form.room} onChangeText={v => setForm({...form, room: v})} />
+              <TextInput style={[styles.input, {flex: 1}]} placeholder="Block" value={form.block} onChangeText={v => setForm({...form, block: v})} />
             </View>
-            <View style={styles.inputRow}>
-              <View style={styles.inputHalf}>
-                <Text style={styles.inputLabel}>Floor</Text>
-                <TextInput style={styles.input} value={form.floor} keyboardType="numeric" onChangeText={(value) => updateForm('floor', value)} />
-              </View>
-              <View style={styles.inputHalf}>
-                <Text style={styles.inputLabel}>Rent</Text>
-                <TextInput style={styles.input} value={form.rent_amount} keyboardType="numeric" onChangeText={(value) => updateForm('rent_amount', value)} />
-              </View>
+            <View style={styles.row}>
+              <TextInput style={[styles.input, {flex: 1}]} placeholder="Rent" keyboardType="numeric" value={form.rent_amount} onChangeText={v => setForm({...form, rent_amount: v})} />
+              <TextInput style={[styles.input, {flex: 1}]} placeholder="Due Day" keyboardType="numeric" value={form.payment_due_day} onChangeText={v => setForm({...form, payment_due_day: v})} />
             </View>
-            <Text style={styles.inputLabel}>Advance Amount</Text>
-            <TextInput style={styles.input} value={form.advance_amount} keyboardType="numeric" onChangeText={(value) => updateForm('advance_amount', value)} />
-            <Text style={styles.inputLabel}>Status</Text>
-            <TextInput style={styles.input} value={form.status} placeholder="occupied / vacant / pending" onChangeText={(value) => updateForm('status', value)} />
-            <RentifyButton title={saving ? 'Saving...' : 'Save Updates'} onPress={handleUpdate} disabled={saving} />
-          </TonalCard>
+            <TouchableOpacity style={styles.saveBtn} onPress={handleUpdate} disabled={saving}>
+              <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Changes'}</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
-          <TonalCard level="lowest" style={styles.detailCard}>
-            {[
-              ['Phone', tenant.phone || 'Not added'],
-              ['Email', tenant.email || 'Not added'],
-              ['Room', tenant.room || 'Not added'],
-              ['Block', tenant.block || 'Not added'],
-              ['Floor', String(tenant.floor || 1)],
-              ['Advance', `Rs ${Number(tenant.advance_amount || 0).toLocaleString('en-IN')}`],
-              ['Paid Status', tenant.paid ? 'Paid' : 'Pending'],
-            ].map(([label, value]) => (
-              <View key={label} style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{label}</Text>
-                <Text style={styles.detailValue}>{value}</Text>
-              </View>
-            ))}
-          </TonalCard>
+          <View style={styles.infoSection}>
+            <Text style={styles.sectionHeader}>History & Payments</Text>
+            {payments.length === 0 ? (
+              <Text style={styles.emptyText}>No transactions yet.</Text>
+            ) : (
+              payments.map(p => (
+                <View key={p.id} style={styles.payRow}>
+                  <View style={styles.payIcon}>
+                    <Ionicons name={p.status === 'paid' ? "checkmark-circle" : "time"} size={18} color={p.status === 'paid' ? "#10b981" : "#f59e0b"} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.payMonth}>{p.month}</Text>
+                    <Text style={styles.payMeta}>{p.method || 'Pending'} • {new Date(p.due_date).toLocaleDateString()}</Text>
+                  </View>
+                  <Text style={[styles.payAmt, { color: p.status === 'paid' ? "#10b981" : "#1e293b" }]}>₹{p.amount}</Text>
+                </View>
+              ))
+            )}
+          </View>
         )}
-
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Transactions</Text>
-          <Text style={styles.sectionMeta}>Paid Rs {totalPaid.toLocaleString('en-IN')}</Text>
-        </View>
-        <TonalCard level="lowest" style={styles.transactionCard}>
-          {payments.length === 0 ? (
-            <Text style={styles.emptyText}>No transactions yet.</Text>
-          ) : (
-            payments.map((payment, index) => (
-              <View key={payment.id} style={[styles.transactionRow, index !== 0 && styles.rowBorder]}>
-                <View style={styles.transactionIcon}>
-                  <Ionicons name={payment.status === 'paid' ? 'checkmark-circle' : 'time-outline'} size={18} color={payment.status === 'paid' ? theme.colors.secondary : theme.colors.warning} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.transactionTitle}>{payment.month || 'Rent Payment'}</Text>
-                  <Text style={styles.transactionMeta}>
-                    {payment.method || 'Pending'} / {payment.paid_date || payment.due_date || 'No date'}
-                  </Text>
-                </View>
-                <View style={styles.transactionRight}>
-                  <Text style={styles.transactionAmount}>Rs {Number(payment.amount || 0).toLocaleString('en-IN')}</Text>
-                  <StatusBadge status={payment.status === 'paid' ? 'vacant' : 'pending'} label={payment.status} />
-                </View>
-              </View>
-            ))
-          )}
-        </TonalCard>
-
-        <Text style={styles.sectionTitle}>History</Text>
-        <TonalCard level="lowest" style={styles.historyCard}>
-          {historyRows.map((item, index) => (
-            <View key={item} style={[styles.historyRow, index !== 0 && styles.rowBorder]}>
-              <View style={styles.historyDot} />
-              <Text style={styles.historyText}>{item}</Text>
-            </View>
-          ))}
-        </TonalCard>
-
-        <RentifyButton title={deleting ? 'Deleting...' : 'Delete Tenant'} onPress={handleDelete} disabled={deleting} variant="secondary" style={styles.deleteButton} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: theme.colors.background },
-  center: { justifyContent: 'center', alignItems: 'center' },
-  container: { padding: theme.spacing.lg, paddingBottom: 40 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.xl },
-  iconButton: { width: 38, height: 38, borderRadius: 8, backgroundColor: theme.colors.surfaceContainerLow, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  editIconButton: { width: 38, height: 38, borderRadius: 8, backgroundColor: theme.colors.occupiedBg, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
-  deleteIconButton: { width: 38, height: 38, borderRadius: 8, backgroundColor: '#fee4e2', alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: theme.typography.headline.fontFamily, fontSize: 30, color: theme.colors.onSurface },
-  subtitle: { fontFamily: theme.typography.label.fontFamily, fontSize: 11, color: theme.colors.onSurfaceVariant, marginTop: 2 },
-  profileCard: { marginBottom: theme.spacing.lg },
-  approvalCard: { marginBottom: theme.spacing.lg, padding: theme.spacing.lg, backgroundColor: theme.colors.pendingBg },
-  approvalHeader: { flexDirection: 'row', alignItems: 'flex-start' },
-  approvalIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: '#fff6e5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  approvalTitle: {
-    fontFamily: theme.typography.label.fontFamily,
-    fontSize: 14,
-    color: theme.colors.pendingText,
-  },
-  approvalText: {
-    fontFamily: theme.typography.body.fontFamily,
-    fontSize: 12,
-    lineHeight: 18,
-    color: theme.colors.onSurfaceVariant,
-    marginTop: 4,
-  },
-  approvalButton: { marginTop: theme.spacing.md },
-  profileTop: { flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 58, height: 58, borderRadius: 12, backgroundColor: theme.colors.primary, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
-  avatarText: { fontFamily: theme.typography.headline.fontFamily, fontSize: 24, color: theme.colors.onPrimary },
-  name: { fontFamily: theme.typography.headline.fontFamily, fontSize: 26, color: theme.colors.onSurface },
-  room: { fontFamily: theme.typography.label.fontFamily, fontSize: 13, color: theme.colors.primary, marginTop: 3 },
-  joined: { fontFamily: theme.typography.body.fontFamily, fontSize: 12, color: theme.colors.onSurfaceVariant, marginTop: 2 },
-  summaryGrid: { flexDirection: 'row', gap: 12, marginBottom: theme.spacing.xl },
-  summaryCard: { flex: 1, padding: theme.spacing.md },
-  summaryLabel: { fontFamily: theme.typography.label.fontFamily, fontSize: 10, color: theme.colors.onSurfaceVariant, textTransform: 'uppercase' },
-  summaryValue: { fontFamily: theme.typography.headline.fontFamily, fontSize: 22, color: theme.colors.primary, marginTop: 6 },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md },
-  sectionTitle: { fontFamily: theme.typography.headline.fontFamily, fontSize: 22, color: theme.colors.onSurface, marginBottom: theme.spacing.md },
-  sectionAction: { fontFamily: theme.typography.label.fontFamily, fontSize: 14, color: theme.colors.primary, marginBottom: theme.spacing.md },
-  sectionMeta: { fontFamily: theme.typography.label.fontFamily, fontSize: 12, color: theme.colors.secondary },
-  detailCard: { padding: 0, overflow: 'hidden', marginBottom: theme.spacing.xl },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', padding: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.outlineVariant + '44' },
-  detailLabel: { fontFamily: theme.typography.body.fontFamily, fontSize: 14, color: theme.colors.onSurfaceVariant },
-  detailValue: { fontFamily: theme.typography.label.fontFamily, fontSize: 14, color: theme.colors.onSurface },
-  editCard: { padding: theme.spacing.xl, marginBottom: theme.spacing.xl },
-  inputLabel: { fontFamily: theme.typography.label.fontFamily, fontSize: 10, color: theme.colors.onSurfaceVariant, textTransform: 'uppercase', marginBottom: 8 },
-  input: {
-    minHeight: 50,
-    borderRadius: 8,
-    backgroundColor: theme.colors.surfaceContainerLow,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 12,
-    marginBottom: theme.spacing.lg,
-    fontFamily: theme.typography.body.fontFamily,
-    color: theme.colors.onSurface,
-  },
-  inputRow: { flexDirection: 'row', gap: 12 },
-  inputHalf: { flex: 1 },
-  transactionCard: { padding: 0, overflow: 'hidden', marginBottom: theme.spacing.xl },
-  transactionRow: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
-  transactionIcon: { width: 38, height: 38, borderRadius: 8, backgroundColor: theme.colors.surfaceContainerLow, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  transactionTitle: { fontFamily: theme.typography.label.fontFamily, fontSize: 15, color: theme.colors.onSurface },
-  transactionMeta: { fontFamily: theme.typography.body.fontFamily, fontSize: 12, color: theme.colors.onSurfaceVariant, marginTop: 2 },
-  transactionRight: { alignItems: 'flex-end' },
-  transactionAmount: { fontFamily: theme.typography.headline.fontFamily, fontSize: 15, color: theme.colors.onSurface, marginBottom: 4 },
-  rowBorder: { borderTopWidth: 1, borderTopColor: theme.colors.outlineVariant + '44' },
-  emptyText: { fontFamily: theme.typography.body.fontFamily, fontSize: 14, color: theme.colors.onSurfaceVariant, padding: theme.spacing.lg },
-  historyCard: { padding: 0, overflow: 'hidden', marginBottom: theme.spacing.xl },
-  historyRow: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md },
-  historyDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.secondary, marginRight: 12 },
-  historyText: { flex: 1, fontFamily: theme.typography.body.fontFamily, fontSize: 14, lineHeight: 20, color: theme.colors.onSurfaceVariant },
-  deleteButton: { marginBottom: theme.spacing.xl },
-  emptyState: { flex: 1, padding: theme.spacing.xl, justifyContent: 'center' },
-  emptyTitle: { fontFamily: theme.typography.headline.fontFamily, fontSize: 26, color: theme.colors.onSurface, marginBottom: theme.spacing.lg },
+  safeArea: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { padding: 20, paddingBottom: 40 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 32, marginTop: 10 },
+  backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginRight: 12, elevation: 2 },
+  editBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', elevation: 2 },
+  title: { fontSize: 24, fontWeight: '800', color: '#1e293b' },
+  subtitle: { fontSize: 13, color: '#64748b', marginTop: 2 },
+  profileSection: { alignItems: 'center', marginBottom: 24 },
+  avatarContainer: { width: 100, height: 100, borderRadius: 32, padding: 4, backgroundColor: '#fff', elevation: 4 },
+  avatar: { flex: 1, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 42, color: '#fff', fontWeight: 'bold' },
+  name: { fontSize: 22, fontWeight: '800', color: '#1e293b' },
+  roomBadge: { paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#f1f5f9', borderRadius: 8, marginTop: 8 },
+  roomText: { fontSize: 13, color: '#4f46e5', fontWeight: '700' },
+  actionRow: { flexDirection: 'row', gap: 16, marginTop: 24 },
+  actionCircle: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', elevation: 3 },
+  approvalBox: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 20, marginBottom: 24, gap: 12 },
+  approvalTitle: { fontSize: 14, fontWeight: '800', color: '#9a3412' },
+  approvalSub: { fontSize: 12, color: '#c2410c', marginTop: 2 },
+  approveBtn: { backgroundColor: '#ea580c', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10 },
+  approveText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  metricsGrid: { flexDirection: 'row', gap: 12, marginBottom: 24 },
+  metricCard: { flex: 1, backgroundColor: '#fff', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: '#f1f5f9' },
+  mLabel: { fontSize: 10, fontWeight: '800', color: '#94a3b8', letterSpacing: 1 },
+  mValue: { fontSize: 20, fontWeight: '800', color: '#1e293b', marginTop: 6 },
+  infoSection: { gap: 12 },
+  sectionHeader: { fontSize: 18, fontWeight: '800', color: '#1e293b', marginBottom: 12 },
+  payRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#f1f5f9' },
+  payIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  payMonth: { fontSize: 15, fontWeight: '700', color: '#1e293b' },
+  payMeta: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  payAmt: { fontSize: 14, fontWeight: '700' },
+  formCard: { backgroundColor: '#fff', padding: 24, borderRadius: 24, borderWidth: 1, borderColor: '#f1f5f9' },
+  formHeader: { fontSize: 18, fontWeight: '800', color: '#1e293b', marginBottom: 20 },
+  input: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 16, fontSize: 15, color: '#1e293b', marginBottom: 12, borderWidth: 1, borderColor: '#f1f5f9' },
+  row: { flexDirection: 'row', gap: 12 },
+  saveBtn: { backgroundColor: '#4f46e5', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+  saveBtnText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', paddingVertical: 20, fontStyle: 'italic' }
 });

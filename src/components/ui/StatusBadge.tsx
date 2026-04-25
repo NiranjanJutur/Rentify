@@ -36,15 +36,16 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, label }) => {
 
 const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
     alignSelf: 'flex-start',
   },
   text: {
     fontFamily: theme.typography.label.fontFamily,
-    fontSize: 12,
+    fontSize: 10,
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 0,
+    letterSpacing: 0.5,
   },
 });

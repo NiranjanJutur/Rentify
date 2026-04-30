@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, useWindowDimensions, TextInput, Alert } from 'react-native';
 import { theme } from '../../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import { TonalCard } from '../../components/ui/TonalCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 
 interface RoomStatus {
+  id: string;
   label: string;
   occupancy: number;
   max: number;
@@ -56,6 +57,9 @@ export const RoomOverviewScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [property, setProperty] = useState<any>(null);
   const [rooms, setRooms] = useState<RoomStatus[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedNames, setEditedNames] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -72,10 +76,13 @@ export const RoomOverviewScreen = () => {
 
       const config = currentProp.property_config || {};
       const sharingMix = config.sharingMix || null;
+      const sharingRoomNumbers = config.sharingRoomNumbers || null;
+      const roomNames = config.roomNames || {};
       const totalRoomsCount = currentProp.total_rooms || 0;
       const prefix = currentProp.room_label_prefix || '';
 
       const generatedRooms: RoomStatus[] = [];
+      const initEditedNames: Record<string, string> = {};
 
       if (sharingMix) {
         let roomCounter = 1;
@@ -84,12 +91,17 @@ export const RoomOverviewScreen = () => {
           { key: 'double', max: 2 },
           { key: 'triple', max: 3 },
           { key: 'quad', max: 4 },
+          { key: 'quintuple', max: 5 },
+          { key: 'sextuple', max: 6 },
         ];
 
         sharingOptions.forEach((option) => {
           const count = parseInt(sharingMix[option.key] || '0', 10);
+          const customRooms = sharingRoomNumbers?.[option.key] || [];
           for (let i = 0; i < count; i += 1) {
-            const roomLabel = `${prefix}${roomCounter++}`;
+            const roomId = `sharing_${option.key}_${i}`;
+            const defaultLabel = customRooms[i] || `${prefix}${roomCounter++}`;
+            const roomLabel = roomNames[roomId] || defaultLabel;
             const roomTenants = occupiedTenants.filter((tenant) => tenant.room === roomLabel);
             const occupancy = roomTenants.length;
 
@@ -98,18 +110,22 @@ export const RoomOverviewScreen = () => {
             else if (occupancy > 0) status = 'partial';
 
             generatedRooms.push({
+              id: roomId,
               label: roomLabel,
               occupancy,
               max: option.max,
               tenants: roomTenants,
               status,
             });
+            initEditedNames[roomId] = roomLabel;
           }
         });
       } else {
         const maxOccupancy = currentProp.max_occupancy_per_room || 1;
         for (let i = 1; i <= totalRoomsCount; i += 1) {
-          const roomLabel = `${prefix}${i}`;
+          const roomId = `std_${i}`;
+          const defaultLabel = `${prefix}${i}`;
+          const roomLabel = roomNames[roomId] || defaultLabel;
           const roomTenants = occupiedTenants.filter((tenant) => tenant.room === roomLabel);
           const occupancy = roomTenants.length;
 
@@ -118,16 +134,19 @@ export const RoomOverviewScreen = () => {
           else if (occupancy > 0) status = 'partial';
 
           generatedRooms.push({
+            id: roomId,
             label: roomLabel,
             occupancy,
             max: maxOccupancy,
             tenants: roomTenants,
             status,
           });
+          initEditedNames[roomId] = roomLabel;
         }
       }
 
       setRooms(generatedRooms);
+      setEditedNames(initEditedNames);
     } catch (err) {
       console.log('Error fetching room data:', err);
     } finally {
@@ -177,6 +196,40 @@ export const RoomOverviewScreen = () => {
       .map((max) => ({ max: Number(max), rooms: groups[Number(max)] }));
   }, [rooms]);
 
+  const handleSaveEdits = async () => {
+    setSaving(true);
+    try {
+      const config = property.property_config || {};
+      const newRoomNames = { ...(config.roomNames || {}) };
+      
+      const updatePromises: Promise<any>[] = [];
+
+      for (const room of rooms) {
+        const newName = editedNames[room.id]?.trim();
+        if (newName && newName !== room.label) {
+          newRoomNames[room.id] = newName;
+          
+          // Update tenants in this room
+          room.tenants.forEach(t => {
+            updatePromises.push(tenantService.update(t.id, { room: newName }));
+          });
+        }
+      }
+
+      const updatedConfig = { ...config, roomNames: newRoomNames };
+      updatePromises.push(propertyService.update(property.id, { property_config: updatedConfig }));
+
+      await Promise.all(updatePromises);
+      setIsEditing(false);
+      fetchData();
+    } catch (err) {
+      console.log('Error saving room names:', err);
+      Alert.alert('Error', 'Failed to save room names.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.safeArea, styles.centered]}>
@@ -211,6 +264,17 @@ export const RoomOverviewScreen = () => {
             <Text style={styles.title}>Room Overview</Text>
             <Text style={styles.subtitle}>{property.name}</Text>
           </View>
+          <TouchableOpacity 
+            style={styles.editBtn} 
+            onPress={() => isEditing ? handleSaveEdits() : setIsEditing(true)}
+            disabled={saving}
+          >
+            {saving ? (
+              <ActivityIndicator size="small" color={theme.colors.primary} />
+            ) : (
+              <Text style={styles.editBtnText}>{isEditing ? 'Save' : 'Edit'}</Text>
+            )}
+          </TouchableOpacity>
         </View>
 
         <TonalCard level="lowest" style={styles.heroCard}>
@@ -294,8 +358,9 @@ export const RoomOverviewScreen = () => {
                       <TouchableOpacity
                         key={room.label}
                         style={[styles.roomCard, { width: roomCardWidth, borderColor: statusColor + '20' }]}
-                        activeOpacity={0.82}
+                        activeOpacity={isEditing ? 1 : 0.82}
                         onPress={() => {
+                          if (isEditing) return;
                           if (room.occupancy > 0) {
                             navigation.navigate('TenantDetail', {
                               tenantId: room.tenants[0].id,
@@ -310,8 +375,18 @@ export const RoomOverviewScreen = () => {
                         <View style={[styles.roomAccent, { backgroundColor: statusColor }]} />
 
                         <View style={styles.roomTopRow}>
-                          <View>
-                            <Text style={styles.roomLabel}>{room.label}</Text>
+                          <View style={{ flex: 1, marginRight: 8 }}>
+                            {isEditing ? (
+                              <TextInput
+                                style={styles.roomLabelInput}
+                                value={editedNames[room.id]}
+                                onChangeText={(val) => setEditedNames(prev => ({ ...prev, [room.id]: val }))}
+                                placeholder="Room Name"
+                                placeholderTextColor={theme.colors.onSurfaceVariant}
+                              />
+                            ) : (
+                              <Text style={styles.roomLabel}>{room.label}</Text>
+                            )}
                             <Text style={styles.roomHint}>{statusMeta.hint}</Text>
                           </View>
                           <StatusBadge status={statusMeta.badgeStatus} label={statusMeta.label} />
@@ -408,6 +483,18 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderRadius: 16,
     ...theme.elevation.floating,
+  },
+  editBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: theme.colors.primaryContainer,
+    borderRadius: 999,
+  },
+  editBtnText: {
+    fontFamily: theme.typography.label.fontFamily,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    color: theme.colors.onPrimaryContainer,
   },
   headerCopy: {
     flex: 1,
@@ -607,6 +694,15 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.headline.fontFamily,
     fontSize: 30,
     color: theme.colors.onSurface,
+  },
+  roomLabelInput: {
+    fontFamily: theme.typography.headline.fontFamily,
+    fontSize: 26,
+    color: theme.colors.onSurface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.primary,
+    paddingVertical: 0,
+    marginBottom: 4,
   },
   roomHint: {
     fontFamily: theme.typography.body.fontFamily,

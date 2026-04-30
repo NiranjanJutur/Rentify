@@ -36,9 +36,9 @@ export const TenantManagementScreen = () => {
   const [propertyName, setPropertyName] = useState('Loading...');
   const [totalCapacity, setTotalCapacity] = useState(0);
 
-  const fetchTenants = useCallback(async () => {
+  const fetchTenants = useCallback(async (showSpinner: boolean = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       const props = await propertyService.getMyProperties();
       const currentProp = props?.[0];
       if (!currentProp) return;
@@ -64,7 +64,7 @@ export const TenantManagementScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchTenants();
+      fetchTenants(false);
     }, [fetchTenants])
   );
 
@@ -123,7 +123,7 @@ export const TenantManagementScreen = () => {
 
         {/* Occupancy Overview */}
         <LinearGradient
-          colors={['#4f46e5', '#6366f1']}
+          colors={['#0F172A', '#1E293B']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.overviewCard}
@@ -204,6 +204,26 @@ export const TenantManagementScreen = () => {
           ))}
         </View>
       </ScrollView>
+
+      {/* Bottom Nav */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OwnerDashboard')}>
+          <Ionicons name="grid-outline" size={20} color="#64748b" />
+          <Text style={styles.navText}>Overview</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="people" size={20} color="#4f46e5" />
+          <Text style={[styles.navText, { color: '#4f46e5' }]}>Tenants</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('PaymentCollection')}>
+          <Ionicons name="wallet-outline" size={20} color="#64748b" />
+          <Text style={styles.navText}>Finance</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OwnerProfile')}>
+          <Ionicons name="settings-outline" size={20} color="#64748b" />
+          <Text style={styles.navText}>Settings</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -244,5 +264,8 @@ const styles = StyleSheet.create({
   tenantName: { fontSize: 15, fontWeight: '700', color: '#1e293b' },
   tenantRoom: { fontSize: 12, color: '#64748b', marginTop: 2 },
   tenantRight: { alignItems: 'flex-end', gap: 4 },
-  tenantRent: { fontSize: 14, fontWeight: '700', color: '#1e293b' }
+  tenantRent: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
+  bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 85, backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingBottom: 20 },
+  navItem: { alignItems: 'center', justifyContent: 'center' },
+  navText: { fontSize: 10, fontWeight: '700', color: '#64748b', marginTop: 4 }
 });

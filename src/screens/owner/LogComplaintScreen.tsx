@@ -41,7 +41,11 @@ export const LogComplaintScreen = () => {
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
         const mimeType = asset.mimeType || 'image/jpeg';
-        setPhotoData(asset.base64 ? `data:${mimeType};base64,${asset.base64}` : asset.uri);
+        if (asset.base64) {
+          setPhotoData(`data:${mimeType};base64,${asset.base64}`);
+        } else {
+          setPhotoData(asset.uri); // Fallback to local uri, though base64 is requested
+        }
         setMessage(null);
       }
     } catch (error: any) {

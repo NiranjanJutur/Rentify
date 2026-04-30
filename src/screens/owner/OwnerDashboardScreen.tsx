@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, StatusBar, Modal } from 'react-native';
 import { theme } from '../../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { propertyService, tenantService, paymentService, expenseService, staffService, complaintService, authService } from '../../services/dataService';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -39,15 +39,16 @@ export const OwnerDashboardScreen = () => {
   const [propertyList, setPropertyList] = useState<any[]>([]);
   const [recentPayments, setRecentPayments] = useState<any[]>([]);
   const [ownerName, setOwnerName] = useState('');
+  const [showPropertySwitcher, setShowPropertySwitcher] = useState(false);
 
-  const fetchMetrics = useCallback(async () => {
+  const fetchMetrics = useCallback(async (selectedPropId?: string, showSpinner: boolean = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       const props = await propertyService.getMyProperties();
       setPropertyList(props || []);
       const session = await authService.getSession();
       if (session?.user) {
-        let name = session.user.user_metadata?.name;
+        let name = session.user.user_metadata?.full_name || session.user.user_metadata?.name;
         if (!name && session.user.email) {
           const prefix = session.user.email.split('@')[0];
           name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
@@ -55,7 +56,11 @@ export const OwnerDashboardScreen = () => {
         setOwnerName(name || '');
       }
 
-      const currentProp = props?.[0];
+      let currentProp = props?.[0];
+      if (selectedPropId) {
+        currentProp = props?.find(p => p.id === selectedPropId) || currentProp;
+      }
+      
       setActiveProperty(currentProp);
 
       if (!currentProp) {
@@ -102,14 +107,20 @@ export const OwnerDashboardScreen = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchMetrics();
-  }, [fetchMetrics]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchMetrics(undefined, false);
+    }, [fetchMetrics])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchMetrics();
   };
+
+  const collectionPercentage = metrics.expected > 0 
+    ? ((metrics.collected / metrics.expected) * 100).toFixed(1) 
+    : '0.0';
 
   if (loading) {
     return (
@@ -129,11 +140,18 @@ export const OwnerDashboardScreen = () => {
       >
         {/* Header Section */}
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1, paddingRight: 10 }}>
             <Text style={styles.greeting}>Good Day, {ownerName || 'Owner'}</Text>
-            <Text style={styles.subtitle}>
-              {activeProperty?.name || 'Managing your estate'} • {metrics.tenants} tenants
-            </Text>
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}
+              onPress={() => setShowPropertySwitcher(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.subtitle}>
+                {activeProperty?.name || 'Managing your estate'} • {metrics.tenants} tenants
+              </Text>
+              <Ionicons name="chevron-down" size={16} color={theme.colors.onSurfaceVariant} style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.profileBtn} onPress={() => navigation.navigate('OwnerProfile')}>
             <LinearGradient colors={['#6366f1', '#4f46e5']} style={styles.profileGradient}>
@@ -144,7 +162,7 @@ export const OwnerDashboardScreen = () => {
 
         {/* Main Stats Card */}
         <LinearGradient
-          colors={['#1e293b', '#334155']}
+          colors={['#0F172A', '#1E293B']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}
@@ -155,8 +173,8 @@ export const OwnerDashboardScreen = () => {
               <Text style={styles.heroValue}>₹{metrics.collected.toLocaleString('en-IN')}</Text>
             </View>
             <View style={styles.badge}>
-              <Ionicons name="trending-up" size={14} color="#10b981" />
-              <Text style={styles.badgeText}>+12.5%</Text>
+              <Ionicons name="pie-chart" size={14} color="#10b981" />
+              <Text style={styles.badgeText}>{collectionPercentage}% Collected</Text>
             </View>
           </View>
           
@@ -273,6 +291,55 @@ export const OwnerDashboardScreen = () => {
           <Text style={styles.navText}>Settings</Text>
         </TouchableOpacity>
       </View>
+      {/* Property Switcher Modal */}
+      <Modal
+        visible={showPropertySwitcher}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowPropertySwitcher(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowPropertySwitcher(false)}
+        >
+          <TouchableOpacity activeOpacity={1}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Switch Property</Text>
+                <TouchableOpacity onPress={() => setShowPropertySwitcher(false)}>
+                  <Ionicons name="close" size={24} color={theme.colors.onSurfaceVariant} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {propertyList.map((prop) => (
+                  <TouchableOpacity
+                    key={prop.id}
+                    style={[
+                      styles.propertyOption,
+                      activeProperty?.id === prop.id && styles.propertyOptionActive
+                    ]}
+                    onPress={() => {
+                      fetchMetrics(prop.id);
+                      setShowPropertySwitcher(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.propertyOptionText,
+                      activeProperty?.id === prop.id && styles.propertyOptionTextActive
+                    ]}>
+                      {prop.name}
+                    </Text>
+                    {activeProperty?.id === prop.id && (
+                      <Ionicons name="checkmark-circle" size={24} color={theme.colors.primary} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -285,7 +352,59 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
   profileBtn: { width: 44, height: 44, borderRadius: 22, overflow: 'hidden', elevation: 4 },
   profileGradient: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  profileInitial: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  profileInitial: {
+    fontFamily: theme.typography.headline.fontFamily,
+    fontSize: 20,
+    color: '#fff',
+    lineHeight: 24,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 24,
+    padding: 24,
+    ...theme.elevation.high,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontFamily: theme.typography.headline.fontFamily,
+    fontSize: 20,
+    color: theme.colors.onSurface,
+  },
+  propertyOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 8,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+  },
+  propertyOptionActive: {
+    backgroundColor: theme.colors.primaryContainer + '20',
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '30',
+  },
+  propertyOptionText: {
+    fontFamily: theme.typography.body.fontFamily,
+    fontSize: 16,
+    color: theme.colors.onSurface,
+  },
+  propertyOptionTextActive: {
+    fontFamily: theme.typography.label.fontFamily,
+    color: theme.colors.primary,
+  },
   heroCard: { borderRadius: 24, padding: 24, marginBottom: 20, elevation: 8, shadowColor: '#1e293b', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 15 },
   heroTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   heroLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: '600', letterSpacing: 0.5 },

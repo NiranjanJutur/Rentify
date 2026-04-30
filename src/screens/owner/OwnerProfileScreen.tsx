@@ -31,8 +31,8 @@ export const OwnerProfileScreen = () => {
   const [waEditing, setWaEditing] = useState(false);
   const [waSaving, setWaSaving] = useState(false);
 
-  const fetchProfile = useCallback(async () => {
-    setLoading(true);
+  const fetchProfile = useCallback(async (showSpinner: boolean = true) => {
+    if (showSpinner) setLoading(true);
     try {
       const session = await authService.getSession();
       if (session?.user?.email) setUserEmail(session.user.email);
@@ -52,7 +52,7 @@ export const OwnerProfileScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchProfile();
+      fetchProfile(false);
     }, [fetchProfile])
   );
 
@@ -197,6 +197,26 @@ export const OwnerProfileScreen = () => {
           </>
         )}
       </ScrollView>
+
+      {/* Bottom Nav */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OwnerDashboard')}>
+          <Ionicons name="grid-outline" size={20} color="#64748b" />
+          <Text style={styles.navText}>Overview</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('TenantManagement')}>
+          <Ionicons name="people-outline" size={20} color="#64748b" />
+          <Text style={styles.navText}>Tenants</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('PaymentCollection')}>
+          <Ionicons name="wallet-outline" size={20} color="#64748b" />
+          <Text style={styles.navText}>Finance</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="settings" size={20} color="#4f46e5" />
+          <Text style={[styles.navText, { color: '#4f46e5' }]}>Settings</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -245,4 +265,7 @@ const styles = StyleSheet.create({
   settingText: { fontFamily: theme.typography.label.fontFamily, fontSize: 15, color: theme.colors.onSurface },
   settingMeta: { fontFamily: theme.typography.body.fontFamily, fontSize: 12, color: theme.colors.onSurfaceVariant, marginTop: 4 },
   settingBadge: { fontFamily: theme.typography.label.fontFamily, fontSize: 11, color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.surfaceContainerLow, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 85, backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingBottom: 20 },
+  navItem: { alignItems: 'center', justifyContent: 'center' },
+  navText: { fontSize: 10, fontWeight: '700', color: '#64748b', marginTop: 4 }
 });

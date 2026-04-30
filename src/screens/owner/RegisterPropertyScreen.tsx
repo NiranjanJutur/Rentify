@@ -5,7 +5,7 @@ import { TonalCard } from '../../components/ui/TonalCard';
 import { RentifyButton } from '../../components/ui/RentifyButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { propertyService } from '../../services/dataService';
+import { propertyService, authService } from '../../services/dataService';
 
 const propertyTypes = ['PG / Hostel', 'Apartment', 'Co-Living', 'Villa', 'Dormitory'] as const;
 const steps = ['Details', 'Rooms', 'Amenities', 'Review'] as const;
@@ -25,6 +25,8 @@ const sharingOptions = [
   { key: 'double', label: '2 Sharing', multiplier: 2 },
   { key: 'triple', label: '3 Sharing', multiplier: 3 },
   { key: 'quad', label: '4 Sharing', multiplier: 4 },
+  { key: 'quintuple', label: '5 Sharing', multiplier: 5 },
+  { key: 'sextuple', label: '6 Sharing', multiplier: 6 },
 ] as const;
 
 const propertyTypeConfigs = {
@@ -76,6 +78,30 @@ export const RegisterPropertyScreen = () => {
   const navigation = useNavigation<any>();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedType, setSelectedType] = useState(0);
+
+  React.useEffect(() => {
+    const prefillOwnerDetails = async () => {
+      try {
+        const session = await authService.getSession();
+        if (session?.user) {
+          let name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || '';
+          if (!name && session.user.email) {
+            const prefix = session.user.email.split('@')[0];
+            name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+          }
+          const phone = session.user.user_metadata?.phone || '';
+          
+          setOwnerName(name);
+          setOwnerEmail(session.user.email || '');
+          setOwnerPhone(phone);
+        }
+      } catch (err) {
+        console.log('Error fetching user details:', err);
+      }
+    };
+    prefillOwnerDetails();
+  }, []);
+
   const [propertyName, setPropertyName] = useState('');
   const [buildingName, setBuildingName] = useState('');
   const [address, setAddress] = useState('');
@@ -93,6 +119,16 @@ export const RegisterPropertyScreen = () => {
     double: '',
     triple: '',
     quad: '',
+    quintuple: '',
+    sextuple: '',
+  });
+  const [sharingRoomNumbers, setSharingRoomNumbers] = useState<Record<(typeof sharingOptions)[number]['key'], string[]>>({
+    single: [],
+    double: [],
+    triple: [],
+    quad: [],
+    quintuple: [],
+    sextuple: [],
   });
   const [activeSharingTypes, setActiveSharingTypes] = useState<Array<(typeof sharingOptions)[number]['key']>>([]);
   const [caretakerName, setCaretakerName] = useState('');
@@ -180,10 +216,21 @@ export const RegisterPropertyScreen = () => {
     setSharingMix(prev => ({ ...prev, [key]: value.replace(/[^0-9]/g, '') }));
   };
 
+  const updateSharingRoomNumber = (key: (typeof sharingOptions)[number]['key'], index: number, value: string) => {
+    setSharingRoomNumbers(prev => {
+      const updated = { ...prev };
+      const currentArr = [...(updated[key] || [])];
+      currentArr[index] = value;
+      updated[key] = currentArr;
+      return updated;
+    });
+  };
+
   const toggleSharingType = (key: (typeof sharingOptions)[number]['key']) => {
     setActiveSharingTypes(prev => {
       if (prev.includes(key)) {
         setSharingMix(current => ({ ...current, [key]: '' }));
+        setSharingRoomNumbers(current => ({ ...current, [key]: [] }));
         return prev.filter(item => item !== key);
       }
       return [...prev, key];
@@ -257,7 +304,7 @@ export const RegisterPropertyScreen = () => {
         building_notes: `Building: ${buildingName || propertyName}\n${buildingNotes}`,
         property_config: {
           buildingName,
-          ...(isSharingMixProperty ? { sharingMix } : {}),
+          ...(isSharingMixProperty ? { sharingMix, sharingRoomNumbers } : {}),
           ...propertySpecificDetails,
         },
         amenities: selectedAmenityNames,
@@ -479,6 +526,23 @@ export const RegisterPropertyScreen = () => {
                       keyboardType="numeric"
                     />
                     <Text style={styles.sharingHint}>Each room adds {option.multiplier} bed{option.multiplier > 1 ? 's' : ''} to capacity.</Text>
+                    {parseInt(sharingMix[option.key] || '0', 10) > 0 && (
+                      <View style={{ marginTop: 12 }}>
+                         <Text style={styles.sharingPromptTitle}>Room Numbers</Text>
+                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                           {Array.from({ length: parseInt(sharingMix[option.key], 10) }).map((_, idx) => (
+                             <TextInput 
+                               key={idx}
+                               placeholder={`R-${idx + 1}`}
+                               placeholderTextColor={theme.colors.onSurfaceVariant + '80'}
+                               value={sharingRoomNumbers[option.key]?.[idx] || ''}
+                               onChangeText={(val) => updateSharingRoomNumber(option.key, idx, val)}
+                               style={[styles.textInput, { flex: 1, minWidth: '45%' }]}
+                             />
+                           ))}
+                         </View>
+                      </View>
+                    )}
                   </View>
                 );
               })}
@@ -686,8 +750,13 @@ export const RegisterPropertyScreen = () => {
             <Text style={styles.reviewText}>
               {sharingOptions
                 .filter(option => parseCount(sharingMix[option.key]) > 0)
-                .map(option => `${option.label}: ${sharingMix[option.key]} room(s)`)
-                .join(', ') || 'No sharing mix added'}
+                .map(option => {
+                  const count = sharingMix[option.key];
+                  const rooms = sharingRoomNumbers[option.key]?.filter(Boolean);
+                  const roomStr = rooms && rooms.length > 0 ? ` (${rooms.join(', ')})` : '';
+                  return `${option.label}: ${count} room(s)${roomStr}`;
+                })
+                .join('\n') || 'No sharing mix added'}
             </Text>
           </>
         )}

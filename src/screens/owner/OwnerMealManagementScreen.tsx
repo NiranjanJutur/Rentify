@@ -102,7 +102,7 @@ export const OwnerMealManagementScreen = () => {
     );
   }
 
-  const MealInput = ({ type, label, icon }: { type: 'breakfast' | 'lunch' | 'dinner', label: string, icon: any }) => (
+  const renderMealInput = (type: 'breakfast' | 'lunch' | 'dinner', label: string, icon: any) => (
     <View style={styles.mealCard}>
       <View style={styles.mealHeader}>
         <View style={styles.iconContainer}>
@@ -154,7 +154,7 @@ export const OwnerMealManagementScreen = () => {
 
         <View style={styles.content}>
           <LinearGradient
-            colors={['#1e293b', '#334155']}
+            colors={['#0F172A', '#1E293B']}
             style={styles.statsCard}
           >
             <Text style={styles.statsTitle}>TENANTS EATING TODAY</Text>
@@ -176,9 +176,9 @@ export const OwnerMealManagementScreen = () => {
             </View>
           </LinearGradient>
 
-          <MealInput type="breakfast" label="Breakfast" icon="cafe-outline" />
-          <MealInput type="lunch" label="Lunch" icon="restaurant-outline" />
-          <MealInput type="dinner" label="Dinner" icon="moon-outline" />
+          {renderMealInput('breakfast', 'Breakfast', 'cafe-outline')}
+          {renderMealInput('lunch', 'Lunch', 'restaurant-outline')}
+          {renderMealInput('dinner', 'Dinner', 'moon-outline')}
         </View>
       </ScrollView>
     </SafeAreaView>
